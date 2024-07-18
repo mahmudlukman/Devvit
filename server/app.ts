@@ -5,7 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { errorMiddleware } from './middleware/error';
 // import userRouter from './routes/user.route';
-// import authRouter from './routes/auth.route';
+import authRouter from './routes/auth.route';
 // import postRouter from './routes/post.route';
 
 // body parser
@@ -25,7 +25,7 @@ app.use(
 
 // routes
 // app.use('/api/v1', userRouter);
-// app.use('/api/v1', authRouter);
+app.use('/api/v1', authRouter);
 // app.use('/api/v1', postRouter);
 
 // testing API
