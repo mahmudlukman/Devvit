@@ -7,7 +7,7 @@ const emailRegexPattern: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface IUser extends Document {
   name: string;
-  username: string;
+  username?: string;
   email: string;
   password: string;
   avatar: {
@@ -27,7 +27,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new mongoose.Schema({
   name: { type: String, required: [true, 'Please enter your name'] },
-  username: { type: String, required: true, unique: true },
+  username: { type: String, unique: true, trim: true, sparse: true },
   email: {
     type: String,
     required: [true, 'Please enter your email'],
@@ -50,7 +50,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema({
   portfolioWebsite: { type: String },
   reputation: { type: Number, default: 0 },
   saved: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
-  joinedAt: { type: Date, default: Date.now }
+  joinedAt: { type: Date, default: Date.now },
 });
 
 // Hash Password before saving
