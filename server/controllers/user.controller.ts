@@ -7,6 +7,7 @@ import cloudinary from 'cloudinary';
 import Question from '../models/question.model';
 import { redis } from '../utils/redis';
 import { FilterQuery } from 'mongoose';
+import Tag from '../models/tag.model';
 
 // get logged in user info
 export const getUserInfo = catchAsyncError(
@@ -211,7 +212,11 @@ export const getSavedQuestions = catchAsyncError(
         },
         populate: [
           { path: 'tags', model: Tag, select: '_id name' },
-          { path: 'author', model: User, select: '_id userId name avatar' },
+          {
+            path: 'author',
+            model: UserModel,
+            select: '_id userId name avatar',
+          },
         ],
       });
 
@@ -221,7 +226,7 @@ export const getSavedQuestions = catchAsyncError(
 
       const savedQuestions = user.saved;
 
-      res.status(200).json({ success: true, message: 'Toggle Successful' });
+      res.status(200).json({ success: true, savedQuestions });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
