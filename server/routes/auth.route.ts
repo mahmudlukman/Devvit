@@ -5,7 +5,8 @@ import {
   // forgotPassword,
   loginUser,
   logoutUser,
-  // registerUser,
+  updateAccessToken,
+  socialAuth,
   // resetPassword,
 } from '../controllers/auth.controller';
 import { isAuthenticated } from '../middleware/auth';
@@ -14,7 +15,9 @@ const authRouter = express.Router();
 authRouter.post('/register', registerUser);
 authRouter.post('/activate-user', activateUser);
 authRouter.post('/login', loginUser);
-authRouter.get('/logout', logoutUser);
+authRouter.get('/logout', isAuthenticated, logoutUser);
+authRouter.get('/refresh', isAuthenticated, updateAccessToken);
+authRouter.post('/social-auth', socialAuth);
 // authRouter.post('/forgot-password', forgotPassword);
 // authRouter.post('/reset-password', resetPassword);
 
