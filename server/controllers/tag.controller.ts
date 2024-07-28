@@ -2,167 +2,101 @@ import { NextFunction, Request, Response } from 'express';
 import { catchAsyncError } from '../middleware/catchAsyncError';
 import ErrorHandler from '../utils/errorHandler';
 import Question from '../models/question.model';
-import UserModel, { IUser } from '../models/user.model';
-import { Schema } from 'mongoose';
-import Tag from '../models/tag.model';
+import UserModel from '../models/user.model';
+import { FilterQuery, Schema } from 'mongoose';
+import Tag, { ITag } from '../models/tag.model';
 
-// get questions
-export const getQuestions = catchAsyncError(
+// get Top Interacted Tags
+export const getTopInteractedTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const questions = await Question.find({})
-        .populate({ path: 'tags', model: Tag })
-        .populate({ path: 'author', model: UserModel })
-        .sort({ createdAt: -1 });
-      res.status(200).json({ success: true, questions });
+      const { userId } = req.params;
+
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        return next(new ErrorHandler('User not found', 400));
+      }
+      // Find interactions for the user and group by tags...
+      // Interaction...
+      const topInteractedTags = [
+        { _id: '1', name: 'tag' },
+        { _id: '2', name: 'tag2' },
+      ];
+      res.status(200).json({ success: true, topInteractedTags });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
 
-interface ICreateQuestion {
-  title: string;
-  content: string;
-  tags: string[];
-  author: Schema.Types.ObjectId | IUser;
+// get all tags
+export const getAllTags = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const tags = await UserModel.find({});
+
+      if (!tags) {
+        return next(new ErrorHandler('Tags not found', 400));
+      }
+
+      res.status(200).json({ success: true, tags });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+interface IGetQuestionsByTagId {
+  page?: number;
+  pageSize?: number;
+  searchQuery?: string;
 }
 
 // create questions
-export const createQuestion = catchAsyncError(
+export const getQuestionsByTagId = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, content, tags, author } = req.body as ICreateQuestion;
-      // Create the question
-      const question = await Question.create({
-        title,
-        content,
-        author,
+      const { tagId } = req.params;
+      const {
+        page = 1,
+        pageSize = 10,
+        searchQuery,
+      } = req.query as IGetQuestionsByTagId;
+
+      const tagFilter: FilterQuery<ITag> = { _id: tagId };
+
+      const tag = await Tag.findOne(tagFilter).populate({
+        path: 'questions',
+        model: Question,
+        match: searchQuery
+          ? { title: { $regex: searchQuery, $options: 'i' } }
+          : {},
+        options: {
+          sort: { createdAt: -1 },
+          skip: (Number(page) - 1) * Number(pageSize),
+          limit: Number(pageSize),
+        },
+        populate: [
+          { path: 'tags', model: Tag, select: '_id name' },
+          {
+            path: 'author',
+            model: UserModel,
+            select: '_id userId name avatar',
+          },
+        ],
       });
 
-      const tagDocuments = [];
-
-      // Create the tags or get them if they already exist
-      for (const tag of tags) {
-        const existingTag = await Tag.findOneAndUpdate(
-          { name: { $regex: new RegExp(`^${tag}$`, 'i') } },
-          { $setOnInsert: { name: tag }, $push: { questions: question._id } },
-          { upsert: true, new: true }
-        );
-
-        tagDocuments.push(existingTag._id);
+      if (!tag) {
+        return next(new ErrorHandler('Tag not found', 400));
       }
 
-      await Question.findByIdAndUpdate(question._id, {
-        $push: { tags: { $each: tagDocuments } },
-      });
-
-      // Create an interaction record for the user's ask_question action
-
-      // Increment author's reputation by +5 for creating a question
+      const questions = tag.questions;
       res.status(201).json({
         success: true,
-        message: 'Question created successfully',
-        question,
+        tagTitle: tag.name,
+        questions,
       });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  }
-);
-
-// get questions by id
-export const getQuestionById = catchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { questionId } = req.params;
-      const question = await Question.findById(questionId)
-        .populate({ path: 'tags', model: Tag, select: '_id name' })
-        .populate({
-          path: 'author',
-          model: UserModel,
-          select: '_id userId name avatar',
-        });
-      res.status(200).json({ success: true, question });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  }
-);
-
-interface IUpvoteQuestion {
-  questionId: Schema.Types.ObjectId;
-  userId: Schema.Types.ObjectId;
-  hasupVoted: boolean;
-  hasdownVoted: boolean;
-}
-
-// upvote questions
-export const upvoteQuestion = catchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { questionId, userId, hasupVoted, hasdownVoted } =
-        req.body as IUpvoteQuestion;
-
-      let updateQuery = {};
-
-      if (hasupVoted) {
-        updateQuery = { $pull: { upvotes: userId } };
-      } else if (hasdownVoted) {
-        updateQuery = {
-          $pull: { downvotes: userId },
-          $push: { upvotes: userId },
-        };
-      } else {
-        updateQuery = { $addToSet: { upvotes: userId } };
-      }
-
-      const question = await Question.findByIdAndUpdate(
-        questionId,
-        updateQuery,
-        { new: true }
-      );
-
-      if (!question) {
-        return next(new ErrorHandler('Question not found', 400));
-      }
-      res.status(200).json({ success: true, question });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  }
-);
-
-// upvote questions
-export const downvoteQuestion = catchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { questionId, userId, hasupVoted, hasdownVoted } =
-        req.body as IUpvoteQuestion;
-
-      let updateQuery = {};
-
-      if (hasdownVoted) {
-        updateQuery = { $pull: { downvote: userId } };
-      } else if (hasupVoted) {
-        updateQuery = {
-          $pull: { upvotes: userId },
-          $push: { downvotes: userId },
-        };
-      } else {
-        updateQuery = { $addToSet: { downvotes: userId } };
-      }
-
-      const question = await Question.findByIdAndUpdate(
-        questionId,
-        updateQuery,
-        { new: true }
-      );
-
-      if (!question) {
-        return next(new ErrorHandler('Question not found', 400));
-      }
-      res.status(200).json({ success: true, question });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
