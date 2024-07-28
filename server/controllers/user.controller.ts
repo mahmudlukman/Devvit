@@ -5,6 +5,7 @@ import { catchAsyncError } from '../middleware/catchAsyncError';
 import { NextFunction, Request, Response } from 'express';
 import cloudinary from 'cloudinary';
 import { redis } from '../utils/redis';
+import { FilterQuery } from 'mongoose';
 
 // get logged in user info
 export const getUserInfo = catchAsyncError(
@@ -148,12 +149,7 @@ export const deleteUser = catchAsyncError(
   }
 );
 
-// interface IToggleSaveQuestion {
-//   userId: string;
-//   questionId: string;
-// }
-
-// get all users
+// toggle Save Question
 export const toggleSaveQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -182,6 +178,47 @@ export const toggleSaveQuestion = catchAsyncError(
           { new: true }
         );
       }
+
+      res.status(200).json({ success: true, message: 'Toggle Successful' });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// get Saved Questions
+export const getSavedQuestions = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        userId,
+        page = 1,
+        pageSize = 10,
+        filter,
+        searchQuery,
+      } = req.params;
+
+      const query: FilterQuery<typeof Question> = searchQuery
+        ? { title: { $regex: new RegExp(searchQuery, 'i') } }
+        : {};
+
+      const user = await UserModel.findOne({ userId }).populate({
+        path: 'saved',
+        match: query,
+        options: {
+          sort: { createdAt: -1 },
+        },
+        populate: [
+          { path: 'tags', model: Tag, select: '_id name' },
+          { path: 'author', model: User, select: '_id userId name avatar' },
+        ],
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const savedQuestions = user.saved;
 
       res.status(200).json({ success: true, message: 'Toggle Successful' });
     } catch (error: any) {
