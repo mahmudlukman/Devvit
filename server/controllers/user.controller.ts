@@ -33,7 +33,7 @@ export const getUserById = catchAsyncError(
 );
 
 // Login user
-interface IGetAllUsersRequest {
+interface IGetAllUsers {
   page?: number;
   pageSize?: number;
   filter?: string;
@@ -44,7 +44,7 @@ interface IGetAllUsersRequest {
 export const getAllUsers = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const { page = 1, pageSize = 20, filter, searchQuery } = req.params as IGetAllUsersRequest;
+      // const { page = 1, pageSize = 20, filter, searchQuery } = req.params as IGetAllUsers;
 
       const users = await UserModel.find({}).sort({ createdAt: -1 });
 
@@ -142,6 +142,48 @@ export const deleteUser = catchAsyncError(
       res
         .status(200)
         .json({ success: true, message: 'User deleted successfully' });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// interface IToggleSaveQuestion {
+//   userId: string;
+//   questionId: string;
+// }
+
+// get all users
+export const toggleSaveQuestion = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId, questionId } = req.body;
+
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const isQuestionSaved = user.saved.includes(questionId);
+
+      if (isQuestionSaved) {
+        // remove question from saved
+        await UserModel.findByIdAndUpdate(
+          userId,
+          { $pull: { saved: questionId } },
+          { new: true }
+        );
+      } else {
+        // add question to saved
+        await UserModel.findByIdAndUpdate(
+          userId,
+          { $addToSet: { saved: questionId } },
+          { new: true }
+        );
+      }
+
+      res.status(200).json({ success: true, message: 'Toggle Successful' });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
