@@ -114,3 +114,36 @@ export const updateUserProfile = catchAsyncError(
     }
   }
 );
+
+// get all users
+export const deleteUser = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const user = await UserModel.findById(id);
+
+      if (!user) {
+        return next(new ErrorHandler('User not found', 404));
+      }
+
+      // get user question ids
+      // const userQuestionIds = await Question.find({ author: user._id}).distinct('_id');
+
+      // delete user questions
+      // await Question.deleteMany({ author: user._id });
+
+      // TODO: delete user answers, comments, etc.
+
+      await user.deleteOne({ id });
+
+      await redis.del(id);
+
+      res
+        .status(200)
+        .json({ success: true, message: 'User deleted successfully' });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
