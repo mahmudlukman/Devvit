@@ -4,6 +4,7 @@ import ErrorHandler from '../utils/errorHandler';
 import { catchAsyncError } from '../middleware/catchAsyncError';
 import { NextFunction, Request, Response } from 'express';
 import cloudinary from 'cloudinary';
+import Question from '../models/question.model';
 import { redis } from '../utils/redis';
 import { FilterQuery } from 'mongoose';
 
