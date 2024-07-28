@@ -32,26 +32,43 @@ export const getUserById = catchAsyncError(
   }
 );
 
+// Login user
+interface IGetAllUsersRequest {
+  page?: number;
+  pageSize?: number;
+  filter?: string;
+  searchQuery?: string;
+}
+
+// get all users
+export const getAllUsers = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // const { page = 1, pageSize = 20, filter, searchQuery } = req.params as IGetAllUsersRequest;
+
+      const users = await UserModel.find({}).sort({ createdAt: -1 });
+
+      res.status(200).json({ success: true, users });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
 interface IUpdateUser {
   name?: string;
   username?: string;
   bio?: string;
   avatar?: string;
   portfolioWebsite?: string;
-  location?: string
+  location?: string;
 }
 
 export const updateUserProfile = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {
-        name,
-        username,
-        bio,
-        avatar,
-        location,
-        portfolioWebsite
-      } = req.body as IUpdateUser;
+      const { name, username, bio, avatar, location, portfolioWebsite } =
+        req.body as IUpdateUser;
       const userId = req.user?._id;
       const user = await UserModel.findById(userId);
 
