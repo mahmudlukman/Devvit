@@ -1,11 +1,11 @@
 import express from 'express';
-import { createAnswer } from '../controllers/answer.controller';
+import { createAnswer, getAnswers } from '../controllers/answer.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
 
 const answerRouter = express.Router();
 
-answerRouter.get(
+answerRouter.post(
   '/create-answer',
   // updateAccessToken,
   isAuthenticated,
@@ -13,10 +13,10 @@ answerRouter.get(
 );
 
 answerRouter.get(
-  '/get-tags',
+  '/get-answers/:questionId',
   // updateAccessToken,
   isAuthenticated,
+  getAnswers
 );
-
 
 export default answerRouter;
