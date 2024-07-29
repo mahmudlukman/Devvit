@@ -7,21 +7,21 @@ const tagRouter = express.Router();
 
 tagRouter.get(
   '/get-top-tags/:id',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   getTopInteractedTags
 );
 
-tagRouter.post(
+tagRouter.get(
   '/get-tags',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   getAllTags
 );
 
 tagRouter.get(
-  '/question-by-tag/:id',
-  updateAccessToken,
+  '/question-by-tag/:tagId',
+  // updateAccessToken,
   isAuthenticated,
   getQuestionsByTagId
 );

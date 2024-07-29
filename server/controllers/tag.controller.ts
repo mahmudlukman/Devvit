@@ -10,9 +10,9 @@ import Tag, { ITag } from '../models/tag.model';
 export const getTopInteractedTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId } = req.params;
+      const { id } = req.params;
 
-      const user = await UserModel.findById(userId);
+      const user = await UserModel.findById(id);
 
       if (!user) {
         return next(new ErrorHandler('User not found', 400));
