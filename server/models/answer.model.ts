@@ -43,5 +43,5 @@ const AnswerSchema: Schema<IAnswer> = new mongoose.Schema({
   },
 });
 
-const Answer: Model<IAnswer> = mongoose.model('Tag', AnswerSchema);
+const Answer: Model<IAnswer> = mongoose.model('Answer', AnswerSchema);
 export default Answer;

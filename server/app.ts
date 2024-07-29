@@ -8,6 +8,7 @@ import userRouter from './routes/user.route';
 import authRouter from './routes/auth.route';
 import questionRouter from './routes/question.route';
 import tagRouter from './routes/tag.route';
+import answerRouter from './routes/answer.route';
 
 // body parser
 app.use(express.json({ limit: '50mb' }));
@@ -29,7 +30,7 @@ app.use('/api/v1', userRouter);
 app.use('/api/v1', authRouter);
 app.use('/api/v1', questionRouter);
 app.use('/api/v1', tagRouter);
-// app.use('/api/v1', postRouter);
+app.use('/api/v1', answerRouter);
 
 // testing API
 app.get('/test', (req: Request, res: Response, next: NextFunction) => {

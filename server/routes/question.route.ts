@@ -12,35 +12,35 @@ const questionRouter = express.Router();
 
 questionRouter.get(
   '/get-questions',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   getQuestions
 );
 
 questionRouter.post(
   '/create-question',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   createQuestion
 );
 
 questionRouter.get(
   '/get-question/:id',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   getQuestionById
 );
 
 questionRouter.put(
   '/downvote',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   downvoteQuestion
 );
 
 questionRouter.put(
   '/upvote',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   upvoteQuestion
 );
