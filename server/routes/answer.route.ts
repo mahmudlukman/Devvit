@@ -1,5 +1,9 @@
 import express from 'express';
-import { createAnswer, getAnswers } from '../controllers/answer.controller';
+import {
+  createAnswer,
+  getAnswers,
+  upvoteAnswers,
+} from '../controllers/answer.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
 
@@ -17,6 +21,19 @@ answerRouter.get(
   // updateAccessToken,
   isAuthenticated,
   getAnswers
+);
+
+answerRouter.put(
+  '/upvote-answer',
+  // updateAccessToken,
+  isAuthenticated,
+  upvoteAnswers
+);
+answerRouter.put(
+  '/downvote-answer',
+  // updateAccessToken,
+  isAuthenticated,
+  // upvoteAnswers
 );
 
 export default answerRouter;

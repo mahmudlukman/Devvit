@@ -32,14 +32,14 @@ questionRouter.get(
 );
 
 questionRouter.put(
-  '/downvote',
+  '/downvote-question',
   // updateAccessToken,
   isAuthenticated,
   downvoteQuestion
 );
 
 questionRouter.put(
-  '/upvote',
+  '/upvote-question',
   // updateAccessToken,
   isAuthenticated,
   upvoteQuestion
