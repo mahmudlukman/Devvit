@@ -25,19 +25,18 @@ interface ICreateQuestion {
   title: string;
   content: string;
   tags: string[];
-  author: Schema.Types.ObjectId | IUser;
 }
 
 // create questions
 export const createQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, content, tags, author } = req.body as ICreateQuestion;
+      const { title, content, tags, } = req.body as ICreateQuestion;
       // Create the question
       const question = await Question.create({
         title,
         content,
-        author,
+        author: req.user,
       });
 
       const tagDocuments = [];
@@ -62,7 +61,6 @@ export const createQuestion = catchAsyncError(
       // Increment author's reputation by +5 for creating a question
       res.status(201).json({
         success: true,
-        message: 'Question created successfully',
         question,
       });
     } catch (error: any) {
@@ -75,14 +73,15 @@ export const createQuestion = catchAsyncError(
 export const getQuestionById = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { questionId } = req.params;
-      const question = await Question.findById(questionId)
-        .populate({ path: 'tags', model: Tag, select: '_id name' })
-        .populate({
-          path: 'author',
-          model: UserModel,
-          select: '_id userId name avatar',
-        });
+      const { id } = req.params;
+      console.log(`Received questionId: ${id}`);
+      const question = await Question.findById(id)
+        // .populate({ path: 'tags', model: Tag, select: '_id name' })
+        // .populate({
+        //   path: 'author',
+        //   model: UserModel,
+        //   select: '_id userId name avatar',
+        // });
       res.status(200).json({ success: true, question });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
