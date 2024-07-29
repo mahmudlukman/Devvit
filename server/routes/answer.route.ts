@@ -1,8 +1,10 @@
 import express from 'express';
 import {
   createAnswer,
+  // downvoteAnswers,
   getAnswers,
-  upvoteAnswers,
+  toggleVoteAnswer,
+  // upvoteAnswers,
 } from '../controllers/answer.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
@@ -23,17 +25,24 @@ answerRouter.get(
   getAnswers
 );
 
+// answerRouter.put(
+//   '/upvote-answer',
+//   // updateAccessToken,
+//   isAuthenticated,
+//   upvoteAnswers
+// );
+// answerRouter.put(
+//   '/downvote-answer',
+//   // updateAccessToken,
+//   isAuthenticated,
+//   downvoteAnswers
+// );
+
 answerRouter.put(
-  '/upvote-answer',
+  '/vote-answer',
   // updateAccessToken,
   isAuthenticated,
-  upvoteAnswers
-);
-answerRouter.put(
-  '/downvote-answer',
-  // updateAccessToken,
-  isAuthenticated,
-  // upvoteAnswers
+  toggleVoteAnswer
 );
 
 export default answerRouter;

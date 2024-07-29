@@ -1,10 +1,11 @@
 import express from 'express';
 import {
   createQuestion,
-  downvoteQuestion,
+  // downvoteQuestion,
   getQuestionById,
   getQuestions,
-  upvoteQuestion,
+  toggleVoteQuestion,
+  // upvoteQuestion,
 } from '../controllers/question.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
@@ -31,18 +32,24 @@ questionRouter.get(
   getQuestionById
 );
 
-questionRouter.put(
-  '/downvote-question',
-  // updateAccessToken,
-  isAuthenticated,
-  downvoteQuestion
-);
+// questionRouter.put(
+//   '/downvote-question',
+//   // updateAccessToken,
+//   isAuthenticated,
+//   downvoteQuestion
+// );
 
+// questionRouter.put(
+//   '/upvote-question',
+//   // updateAccessToken,
+//   isAuthenticated,
+//   upvoteQuestion
+// );
 questionRouter.put(
-  '/upvote-question',
+  '/vote-question',
   // updateAccessToken,
   isAuthenticated,
-  upvoteQuestion
+  toggleVoteQuestion
 );
 
 export default questionRouter;

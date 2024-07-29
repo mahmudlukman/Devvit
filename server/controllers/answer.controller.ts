@@ -55,44 +55,123 @@ export const getAnswers = catchAsyncError(
   }
 );
 
-interface IUpvoteAnswers {
+interface IVoteAnswers {
   answerId: Schema.Types.ObjectId;
   userId: Schema.Types.ObjectId;
-  hasupVoted: boolean;
-  hasdownVoted: boolean;
 }
 
-// get upvote answers
-export const upvoteAnswers = catchAsyncError(
+export const toggleVoteAnswer = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { answerId, userId, hasupVoted, hasdownVoted } =
-        req.body as IUpvoteAnswers;
+      const { answerId, userId } = req.body as IVoteAnswers;
+
+      const answer = await Answer.findById(answerId);
+
+      if (!answer) {
+        return next(new ErrorHandler('Answer not found', 404));
+      }
+
+      const hasUpvoted = answer.upvotes.includes(userId);
+      const hasDownvoted = answer.downvotes.includes(userId);
 
       let updateQuery = {};
 
-      if (hasupVoted) {
-        updateQuery = { $pull: { upvotes: userId } };
-      } else if (hasdownVoted) {
+      if (hasUpvoted) {
+        // If already upvoted, remove upvote and add downvote
+        updateQuery = {
+          $pull: { upvotes: userId },
+          $addToSet: { downvotes: userId }
+        };
+      } else if (hasDownvoted) {
+        // If already downvoted, remove downvote and add upvote
         updateQuery = {
           $pull: { downvotes: userId },
-          $push: { upvotes: userId },
+          $addToSet: { upvotes: userId }
         };
       } else {
+        // If neither upvoted nor downvoted, add upvote
         updateQuery = { $addToSet: { upvotes: userId } };
       }
 
-      const answer = await Answer.findByIdAndUpdate(answerId, updateQuery, {
-        new: true,
-      });
+      const updatedAnswer = await Answer.findByIdAndUpdate(
+        answerId,
+        updateQuery,
+        { new: true }
+      );
 
-      if (!answer) {
-        return next(new ErrorHandler('Answer not found', 400));
-      }
-
-      res.status(200).json({ success: true, answer });
+      res.status(200).json({ success: true, updatedAnswer });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
+
+// upvote answers
+// export const upvoteAnswers = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { answerId, userId, hasupVoted, hasdownVoted } =
+//         req.body as IVoteAnswers;
+
+//       let updateQuery = {};
+
+//       if (hasupVoted) {
+//         updateQuery = { $pull: { upvotes: userId } };
+//       } else if (hasdownVoted) {
+//         updateQuery = {
+//           $pull: { downvotes: userId },
+//           $push: { upvotes: userId },
+//         };
+//       } else {
+//         updateQuery = { $addToSet: { upvotes: userId } };
+//       }
+
+//       const answer = await Answer.findByIdAndUpdate(answerId, updateQuery, {
+//         new: true,
+//       });
+
+//       if (!answer) {
+//         return next(new ErrorHandler('Answer not found', 400));
+//       }
+
+//       res.status(200).json({ success: true, answer });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
+
+// // down vote answers
+// export const downvoteAnswers = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { answerId, userId, hasupVoted, hasdownVoted } =
+//         req.body as IVoteAnswers;
+
+//       let updateQuery = {};
+
+//       if (hasdownVoted) {
+//         updateQuery = { $pull: { downvotes: userId } };
+//       } else if (hasdownVoted) {
+//         updateQuery = {
+//           $pull: { upvotes: userId },
+//           $push: { downvotes: userId },
+//         };
+//       } else {
+//         updateQuery = { $addToSet: { downvotes: userId } };
+//       }
+
+//       const answer = await Answer.findByIdAndUpdate(answerId, updateQuery, {
+//         new: true,
+//       });
+
+//       if (!answer) {
+//         return next(new ErrorHandler('Answer not found', 400));
+//       }
+
+//       res.status(200).json({ success: true, answer });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
