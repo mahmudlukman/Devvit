@@ -31,7 +31,7 @@ interface ICreateQuestion {
 export const createQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, content, tags, } = req.body as ICreateQuestion;
+      const { title, content, tags } = req.body as ICreateQuestion;
       // Create the question
       const question = await Question.create({
         title,
@@ -74,14 +74,13 @@ export const getQuestionById = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      console.log(`Received questionId: ${id}`);
       const question = await Question.findById(id)
-        // .populate({ path: 'tags', model: Tag, select: '_id name' })
-        // .populate({
-        //   path: 'author',
-        //   model: UserModel,
-        //   select: '_id userId name avatar',
-        // });
+        .populate({ path: 'tags', model: Tag, select: '_id name' })
+        .populate({
+          path: 'author',
+          model: UserModel,
+          select: '_id userId name avatar',
+        });
       res.status(200).json({ success: true, question });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -167,5 +166,3 @@ export const downvoteQuestion = catchAsyncError(
     }
   }
 );
-
-
