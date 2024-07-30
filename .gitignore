@@ -13,11 +13,11 @@ server/.env
 /coverage
 
 # next.js
-/.next/
-/out/
+client/.next
+client/out/
 
 # production
-/build
+client/build
 
 # misc
 .DS_Store
