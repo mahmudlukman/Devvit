@@ -13,9 +13,9 @@ server/.env
 /coverage
 
 # next.js
-client/.next/
+client/.next
 client/.vscode
-client/out/
+client/out
 
 # vercel
 client/.vercel
