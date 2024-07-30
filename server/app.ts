@@ -9,10 +9,11 @@ import authRouter from './routes/auth.route';
 import questionRouter from './routes/question.route';
 import tagRouter from './routes/tag.route';
 import answerRouter from './routes/answer.route';
+import interactionRouter from './routes/interaction.route';
 
 // body parser
 app.use(express.json({ limit: '50mb' }));
-app.disable('x-powered-by')
+app.disable('x-powered-by');
 
 // cookie parser
 app.use(cookieParser());
@@ -31,6 +32,7 @@ app.use('/api/v1', authRouter);
 app.use('/api/v1', questionRouter);
 app.use('/api/v1', tagRouter);
 app.use('/api/v1', answerRouter);
+app.use('/api/v1', interactionRouter);
 
 // testing API
 app.get('/test', (req: Request, res: Response, next: NextFunction) => {
