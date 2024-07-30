@@ -2,7 +2,6 @@ import express from 'express';
 import {
   deleteUser,
   getAllUsers,
-  getUserById,
   getUserInfo,
   updateUserProfile,
 } from '../controllers/user.controller';
@@ -11,7 +10,6 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const userRouter = express.Router();
 
 userRouter.get('/me', isAuthenticated, getUserInfo);
-userRouter.get('/get-user/:id', isAuthenticated, getUserById);
 userRouter.put(
   '/update-user-profile',
   // updateAccessToken,

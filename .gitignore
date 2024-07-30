@@ -13,8 +13,12 @@ server/.env
 /coverage
 
 # next.js
-client/.next
+client/.next/
+client/.vscode
 client/out/
+
+# vercel
+client/.vercel
 
 # production
 client/build
@@ -30,9 +34,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo
