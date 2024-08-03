@@ -32,4 +32,7 @@ export const RegisterSchema = z.object({
   password: z.string().min(6, {
     message: 'Minimum 6 characters required',
   }),
+  confirmPassword: z.string().min(6, {
+    message: 'Minimum 6 characters required',
+  }),
 });

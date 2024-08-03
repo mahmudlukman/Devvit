@@ -20,32 +20,43 @@ import { Button } from '../ui/button';
 import { FormError } from '../FormError';
 import { FormSuccess } from '../FormSuccess';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
+import { EyeIcon, EyeOffIcon } from 'lucide-react'; // Make sure to install lucide-react if not already installed
+
+const ExtendedRegisterSchema = RegisterSchema.extend({
+  confirmPassword: z.string().min(1, "Confirm Password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export const RegisterForm = () => {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
 
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+  const form = useForm<z.infer<typeof ExtendedRegisterSchema>>({
+    resolver: zodResolver(ExtendedRegisterSchema),
     defaultValues: {
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
+  const onSubmit = async (values: z.infer<typeof ExtendedRegisterSchema>) => {
     setError('');
     setSuccess('');
 
     try {
-      const result = await register(values).unwrap();
+      const { confirmPassword, ...registerValues } = values;
+      const result = await register(registerValues).unwrap();
       setSuccess(result.message || 'Registration successful! Please check your email for verification.');
       form.reset();
-      // redirect to login page after a delay
-      // setTimeout(() => router.push('/login'), 5000);
+      // setTimeout(() => router.push('/new-verification'), 5000);
     } catch (error: any) {
       setError(error.data?.message || 'An error occurred during registration');
     }
@@ -103,12 +114,60 @@ export const RegisterForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isLoading}
-                      placeholder="******"
-                      type="password"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        disabled={isLoading}
+                        placeholder="******"
+                        type={showPassword ? "text" : "password"}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        disabled={isLoading}
+                        placeholder="******"
+                        type={showConfirmPassword ? "text" : "password"}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

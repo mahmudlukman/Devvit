@@ -1,34 +1,36 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 import { CardWrapper } from './CardWrapper';
 import { BeatLoader } from 'react-spinners';
 import { useSearchParams } from 'next/navigation';
-import { newVerification } from '@/actions/new-verification';
 import { FormSuccess } from '../FormSuccess';
 import { FormError } from '../FormError';
+import { useActivationMutation } from '@/redux/features/auth/authApi';
 
 const NewVerificationForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 
   const searchParams = useSearchParams();
+  const [activate, { isLoading }] = useActivationMutation();
 
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
+  // const activation_code = searchParams?.get('activation_code');
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     if (!token) {
       setError('Missing token');
       return;
     }
 
-    newVerification(token)
-      .then((data) => {
-        setSuccess(data.success);
-        setError(data.error);
-      })
-      .catch(() => {
-        setError('Something went wrong!');
-      });
-  }, [token]);
+    try {
+      const result = await activate({ activation_token: token }).unwrap();
+      setSuccess(result.message || 'Account activated successfully');
+    } catch (error: any) {
+      setError(error.data?.message || 'Something went wrong!');
+    }
+  }, [token, activate]);
 
   useEffect(() => {
     onSubmit();
@@ -38,12 +40,12 @@ const NewVerificationForm = () => {
     <CardWrapper
       headerLabel="Confirming your verification"
       backButtonLabel="Back to login"
-      backButtonHref="/auth/login"
+      backButtonHref="/login"
     >
       <div className="flex items-center w-full justify-center">
-        {!success && !error && <BeatLoader />}
-        <FormSuccess message={success} />
-        <FormError message={error} />
+        {isLoading && <BeatLoader />}
+        {!isLoading && success && <FormSuccess message={success} />}
+        {!isLoading && error && <FormError message={error} />}
       </div>
     </CardWrapper>
   );

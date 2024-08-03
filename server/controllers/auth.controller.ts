@@ -40,9 +40,9 @@ export const registerUser = catchAsyncError(
       };
       const activationToken = createActivationToken(user);
 
-      const activationCode = activationToken.activationCode;
+      const activationUrl = `http://localhost:3000/new-verification?token=${activationToken}`;
 
-      const data = { user: { name: user.name }, activationCode };
+      const data = { user: { name: user.name }, activationUrl };
       const html = await ejs.renderFile(
         path.join(__dirname, '../mails/activation-mail.ejs'),
         data
@@ -58,7 +58,7 @@ export const registerUser = catchAsyncError(
         res.status(201).json({
           success: true,
           message: `Please check your email: ${user.email} to activate your account!`,
-          activationToken: activationToken.token,
+          activationToken: activationToken,
         });
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
@@ -69,66 +69,52 @@ export const registerUser = catchAsyncError(
   }
 );
 
-interface IActivationToken {
-  token: string;
-  activationCode: string;
-}
-
-export const createActivationToken = (user: any): IActivationToken => {
-  const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
-
-  const token = jwt.sign(
-    {
-      user,
-      activationCode,
-    },
-    process.env.ACTIVATION_SECRET as Secret,
-    {
-      expiresIn: '5m',
-    }
-  );
-  return { token, activationCode };
+// Function to create an activation token
+export const createActivationToken = (user: any): string => {
+  const token = jwt.sign({ user }, process.env.ACTIVATION_SECRET as Secret, {
+    expiresIn: '5m',
+  });
+  return token;
 };
 
 // activate user
 interface IActivationRequest {
   activation_token: string;
-  activation_code: string;
 }
 
 export const activateUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { activation_token, activation_code } =
+      const { activation_token } =
         req.body as IActivationRequest;
 
-      const newUser: { user: IUser; activationCode: string } = jwt.verify(
+      const newUser = jwt.verify(
         activation_token,
         process.env.ACTIVATION_SECRET as string
-      ) as { user: IUser; activationCode: string };
+      ) as { user: IUser };
 
-      if (newUser.activationCode !== activation_code) {
-        return next(new ErrorHandler('Invalid activation code', 400));
+      if (!newUser) {
+        return next(new ErrorHandler('Invalid token', 400));
       }
       const { name, email, password } = newUser.user;
 
-      const existUser = await UserModel.findOne({ email });
+      let user = await UserModel.findOne({ email });
 
-      if (existUser) {
-        return next(new ErrorHandler('Email already exist', 400));
+      if (user) {
+        return next(new ErrorHandler('User already exist', 400));
       }
 
       const userNameWithoutSpace = name.replace(/\s/g, '');
 
       const uniqueNumber = Math.floor(Math.random() * 1000);
 
-      const user = await UserModel.create({
+      user = await UserModel.create({
         name,
         email,
         password,
         username: `${userNameWithoutSpace}${uniqueNumber}`,
       });
-      res.status(201).json({ success: true, message: "User created successfully" });
+      res.status(201).json({ success: true, message: "Email verified & user created successfully" });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
