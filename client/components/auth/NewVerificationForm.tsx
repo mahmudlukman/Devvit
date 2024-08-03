@@ -16,7 +16,6 @@ const NewVerificationForm = () => {
   const [activate, { isLoading }] = useActivationMutation();
 
   const token = searchParams?.get('token');
-  // const activation_code = searchParams?.get('activation_code');
 
   const onSubmit = useCallback(async () => {
     if (!token) {

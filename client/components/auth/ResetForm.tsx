@@ -1,11 +1,14 @@
 'use client';
 
-import * as z from 'zod';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { CardWrapper } from './CardWrapper';
+import { BeatLoader } from 'react-spinners';
+import { FormSuccess } from '../FormSuccess';
+import { FormError } from '../FormError';
+import { useForgotPasswordMutation } from '@/redux/features/auth/authApi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
+import * as z from 'zod';
 import {
   Form,
   FormControl,
@@ -14,42 +17,43 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { ResetSchema } from '@/schemas';
-import { Button } from '../ui/button';
-import { FormError } from '../FormError';
-import { FormSuccess } from '../FormSuccess';
-import { reset } from '@/actions/reset';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+const ForgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
 
 export const ResetForm = () => {
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
-  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
-  const form = useForm<z.infer<typeof ResetSchema>>({
-    resolver: zodResolver(ResetSchema),
+  const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
+    resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof ResetSchema>) => {
-    setError('');
-    setSuccess('');
+  const onSubmit = async (values: z.infer<typeof ForgotPasswordSchema>) => {
+    setError(undefined);
+    setSuccess(undefined);
 
-    console.log(values);
-    startTransition(() => {
-      reset(values).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
-      });
-    });
+    try {
+      const result = await forgotPassword(values).unwrap();
+      setSuccess(result.message || 'Password reset email sent successfully');
+      form.reset();
+    } catch (error: any) {
+      setError(error.data?.message || 'Something went wrong!');
+    }
   };
 
   return (
     <CardWrapper
-      headerLabel="Forgot your password?"
+      headerLabel="Forgot Password"
       backButtonLabel="Back to login"
-      backButtonHref="/auth/login"
+      backButtonHref="/login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -63,7 +67,7 @@ export const ResetForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      disabled={isPending}
+                      disabled={isLoading}
                       placeholder="john.doe@example.com"
                       type="email"
                     />
@@ -73,10 +77,14 @@ export const ResetForm = () => {
               )}
             />
           </div>
-          <FormError message={error} />
-          <FormSuccess message={success} />
-          <Button type="submit" disabled={isPending} className="w-full">
-            Send reset email
+          {error && <FormError message={error} />}
+          {success && <FormSuccess message={success} />}
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? (
+              <BeatLoader />
+            ) : (
+              'Send Reset Link'
+            )}
           </Button>
         </form>
       </Form>
