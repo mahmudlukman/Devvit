@@ -1,7 +1,8 @@
 'use client';
 
 import * as z from 'zod';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CardWrapper } from './CardWrapper';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,13 +19,13 @@ import { RegisterSchema } from '@/schemas';
 import { Button } from '../ui/button';
 import { FormError } from '../FormError';
 import { FormSuccess } from '../FormSuccess';
-import { register } from '@/actions/register';
-
+import { useRegisterMutation } from '@/redux/features/auth/authApi';
 
 export const RegisterForm = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
-  const [isPending, startTransition] = useTransition();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -35,23 +36,26 @@ export const RegisterForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
+  const onSubmit = async (values: z.infer<typeof RegisterSchema>) => {
     setError('');
     setSuccess('');
 
-    startTransition(() => {
-      register(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
-      });
-    });
+    try {
+      const result = await register(values).unwrap();
+      setSuccess(result.message || 'Registration successful! Please check your email for verification.');
+      form.reset();
+      // redirect to login page after a delay
+      // setTimeout(() => router.push('/login'), 5000);
+    } catch (error: any) {
+      setError(error.data?.message || 'An error occurred during registration');
+    }
   };
 
   return (
     <CardWrapper
       headerLabel="Create an account"
       backButtonLabel="Already have an account?"
-      backButtonHref="/auth/login"
+      backButtonHref="/login"
       showSocial
     >
       <Form {...form}>
@@ -66,8 +70,8 @@ export const RegisterForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      disabled={isPending}
-                      placeholder="john doe"
+                      disabled={isLoading}
+                      placeholder="John Doe"
                     />
                   </FormControl>
                   <FormMessage />
@@ -83,7 +87,7 @@ export const RegisterForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      disabled={isPending}
+                      disabled={isLoading}
                       placeholder="john.doe@example.com"
                       type="email"
                     />
@@ -101,7 +105,7 @@ export const RegisterForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      disabled={isPending}
+                      disabled={isLoading}
                       placeholder="******"
                       type="password"
                     />
@@ -113,8 +117,8 @@ export const RegisterForm = () => {
           </div>
           <FormError message={error} />
           <FormSuccess message={success} />
-          <Button type="submit" disabled={isPending} className="w-full">
-            Create an account
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Creating account..." : "Create an account"}
           </Button>
         </form>
       </Form>
