@@ -192,6 +192,105 @@ export const socialAuth = catchAsyncError(
   }
 );
 
+// forgot password
+export const forgotPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return next(new ErrorHandler('Please provide a valid email!', 400));
+      }
+
+      const emailLowerCase = email.toLowerCase();
+      const user = await UserModel.findOne({ email: emailLowerCase });
+      if (!user) {
+        return next(new ErrorHandler('User not found, invalid request!', 400));
+      }
+
+      const resetToken = createActivationToken(user);
+
+      const resetUrl = `http://localhost:3000/reset?token=${resetToken}&id=${user._id}`;
+
+      const data = { user: { name: user.name }, resetUrl };
+      const html = await ejs.renderFile(
+        path.join(__dirname, '../mails/forgot-password-mail.ejs'),
+        data
+      );
+
+      try {
+        await sendMail({
+          email: user.email,
+          subject: 'Reset your password',
+          template: 'forgot-password-mail.ejs',
+          data,
+        });
+        res.status(201).json({
+          success: true,
+          message: `Please check your email: ${user.email} to reset your password!`,
+          resetToken: resetToken,
+        });
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+      }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// update user password
+interface IResetPassword {
+  newPassword: string;
+}
+// forgot password
+export const resetPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { newPassword } = req.body as IResetPassword;
+      const { id } = req.query as any;
+
+      if (!id) {
+        return next(new ErrorHandler('No user ID provided!', 400));
+      }
+
+      const user = await UserModel.findById(id).select('+password');
+
+      if (!user) {
+        return next(new ErrorHandler('user not found!', 400));
+      }
+
+      const isSamePassword = await user.comparePassword(newPassword);
+      if (isSamePassword)
+        return next(
+          new ErrorHandler(
+            'New password must be different from the previous one!',
+            400
+          )
+        );
+
+      if (newPassword.trim().length < 6 || newPassword.trim().length > 20) {
+        return next(
+          new ErrorHandler(
+            'Password must be between at least 6 characters!',
+            400
+          )
+        );
+      }
+
+      user.password = newPassword.trim();
+      await user.save();
+
+      res.status(201).json({
+        success: true,
+        message: `Password Reset Successfully', 'Now you can login with new password!`,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+
 // update access token
 export const updateAccessToken = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
