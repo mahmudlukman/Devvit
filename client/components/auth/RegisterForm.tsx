@@ -20,7 +20,7 @@ import { Button } from '../ui/button';
 import { FormError } from '../FormError';
 import { FormSuccess } from '../FormSuccess';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
-import { EyeIcon, EyeOffIcon } from 'lucide-react'; // Make sure to install lucide-react if not already installed
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 const ExtendedRegisterSchema = RegisterSchema.extend({
   confirmPassword: z.string().min(1, "Confirm Password is required"),

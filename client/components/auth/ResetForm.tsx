@@ -37,8 +37,8 @@ export const ResetForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof ForgotPasswordSchema>) => {
-    setError(undefined);
-    setSuccess(undefined);
+    setError('');
+    setSuccess('');
 
     try {
       const result = await forgotPassword(values).unwrap();

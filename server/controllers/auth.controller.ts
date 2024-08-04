@@ -209,7 +209,7 @@ export const forgotPassword = catchAsyncError(
 
       const resetToken = createActivationToken(user);
 
-      const resetUrl = `http://localhost:3000/reset?token=${resetToken}&id=${user._id}`;
+      const resetUrl = `http://localhost:3000/new-password?token=${resetToken}&id=${user._id}`;
 
       const data = { user: { name: user.name }, resetUrl };
       const html = await ejs.renderFile(
@@ -242,6 +242,7 @@ export const forgotPassword = catchAsyncError(
 interface IResetPassword {
   newPassword: string;
 }
+
 // forgot password
 export const resetPassword = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
