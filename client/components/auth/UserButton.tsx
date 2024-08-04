@@ -9,11 +9,13 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FaUser } from 'react-icons/fa';
 import { ExitIcon } from '@radix-ui/react-icons';
-import { useCurrentUser } from '@/hooks/use-current-user';
+// import { useCurrentUser } from '@/hooks/use-current-user';
 import { LogoutButton } from './LogoutButton';
+import { useSelector } from 'react-redux';
 
 export const UserButton = () => {
-  const user = useCurrentUser();
+  // const user = useCurrentUser();
+  const { user } = useSelector((state: any) => state.auth);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
