@@ -33,7 +33,13 @@ const LeftSidebar = () => {
             (pathname?.includes(item.route) && item.route.length > 1) ||
             pathname === item.route;
 
-          // TODO
+            if(item.route === '/profile') {
+              if(user?._id) {
+                item.route = `${item.route}/${user?._id}`
+              } else {
+                return null;
+              }
+            }
 
           return (
             <Link
@@ -64,7 +70,6 @@ const LeftSidebar = () => {
         })}
       </div>
 
-      {/* <SignedOut> */}
       {!user ? (
         <div className="flex flex-col gap-3">
           <Link href="/login">
@@ -110,7 +115,7 @@ const LeftSidebar = () => {
           <span className="primary-text-gradient max-lg:hidden">Log Out</span>
         </Button>
       )}
-      {/* </SignedOut> */}
+
     </section>
   );
 };
