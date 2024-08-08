@@ -27,4 +27,8 @@ export const questionApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const {} = questionApi;
+export const {
+  useGetQuestionsQuery,
+  useCreateQuestionMutation,
+  useGetQuestionQuery,
+} = questionApi;
