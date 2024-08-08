@@ -11,9 +11,35 @@ import { FaUser } from 'react-icons/fa';
 import { ExitIcon } from '@radix-ui/react-icons';
 import { LogoutButton } from './LogoutButton';
 import { useSelector } from 'react-redux';
+import { useLogOutQuery } from '@/redux/features/auth/authApi';
+import { useState } from 'react';
+import { signOut } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 
-export const UserButton = () => {
-  const { user } = useSelector((state: any) => state.auth);
+interface User {
+  avatar?: { url: string };
+  image?: string;
+  name?: string;
+}
+
+interface RootState {
+  auth: {
+    user: User | null;
+  };
+}
+
+export const UserButton = ({ avatar, image, name }: User) => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [logout, setLogout] = useState(false);
+  const {} = useLogOutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
+
+  const logOutHandler = async () => {
+    setLogout(true);
+    await signOut();
+    redirect('/');
+  };
 
   const getAvatarSrc = () => {
     if (user?.avatar?.url) {
@@ -42,18 +68,14 @@ export const UserButton = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className='w-40' align='end'>
-        {user ? (
+      <DropdownMenuContent className="w-40" align="end">
+        {user && (
           <LogoutButton>
-            <DropdownMenuItem>
-              <ExitIcon className='h-4 w-4 mr-2'/>
+            <DropdownMenuItem onClick={logOutHandler}>
+              <ExitIcon className="h-4 w-4 mr-2" />
               Logout
             </DropdownMenuItem>
           </LogoutButton>
-        ) : (
-          <DropdownMenuItem>
-            Login
-          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
