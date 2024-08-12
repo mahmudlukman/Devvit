@@ -12,9 +12,11 @@ interface QuestionProps {
     name: string;
   }[];
   author: {
+    avatar: {
+      url?: string; 
+    } | string;
     _id: string;
     name: string;
-    picture: string;
   };
   upvotes: string[];
   views: number;
@@ -32,6 +34,14 @@ const QuestionCard = ({
   answers,
   createdAt
 }: QuestionProps) => {
+
+  const getAvatarUrl = (avatar: { url?: string } | string): string => {
+    if (typeof avatar === 'string') {
+      return avatar || '../../public/assets/icons/avatar.svg';
+    }
+    return avatar?.url || '/assets/icons/avatar.svg';
+  };
+
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
@@ -57,13 +67,14 @@ const QuestionCard = ({
 
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
           <Metric 
-            imgUrl={author.picture}
+            imgUrl={getAvatarUrl(author.avatar)}
             alt="user"
             value={author.name}
             title={` - asked ${getTimestamp(createdAt)}`}
             href={`/profile/${author._id}`}
             isAuthor
             textStyles="body-medium text-dark400_light700"
+            imgStyles="bg-slate-300 border-1 border-slate-400"
           />
 
           <Metric 
