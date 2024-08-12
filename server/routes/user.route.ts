@@ -2,7 +2,9 @@ import express from 'express';
 import {
   deleteUser,
   getAllUsers,
+  getSavedQuestions,
   getUserInfo,
+  toggleSaveQuestion,
   updateUserProfile,
 } from '../controllers/user.controller';
 import { isAuthenticated } from '../middleware/auth';
@@ -22,6 +24,18 @@ userRouter.delete(
   // updateAccessToken,
   isAuthenticated,
   deleteUser
+);
+userRouter.post(
+  '/toggle-save-question',
+  // updateAccessToken,
+  isAuthenticated,
+  toggleSaveQuestion
+);
+userRouter.get(
+  '/get-saved-questions/:userId',
+  // updateAccessToken,
+  isAuthenticated,
+  getSavedQuestions
 );
 
 export default userRouter;

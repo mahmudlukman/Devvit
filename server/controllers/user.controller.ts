@@ -22,7 +22,6 @@ export const getUserInfo = catchAsyncError(
   }
 );
 
-
 // Login user
 interface IGetAllUsers {
   page?: number;
@@ -192,7 +191,7 @@ export const getSavedQuestions = catchAsyncError(
         ? { title: { $regex: new RegExp(searchQuery, 'i') } }
         : {};
 
-      const user = await UserModel.findOne({ userId }).populate({
+      const user = await UserModel.findById(userId).populate({
         path: 'saved',
         match: query,
         options: {
@@ -209,7 +208,7 @@ export const getSavedQuestions = catchAsyncError(
       });
 
       if (!user) {
-        throw new Error('User not found');
+        return next(new ErrorHandler('User not found', 404));
       }
 
       const savedQuestions = user.saved;
