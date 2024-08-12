@@ -9,9 +9,11 @@ import RenderTag from '../shared/RenderTag';
 interface Props {
   user: {
     _id: string;
-    avatar: {
-      url?: string; 
-    } | string;
+    avatar:
+      | {
+          url?: string;
+        }
+      | string;
     name: string;
     username: string;
   };
@@ -20,7 +22,7 @@ interface Props {
 const UserCard = ({ user }: Props) => {
   const { data, isLoading, isError } = useGetTopInteractedTagsQuery(user._id);
 
-  const interactedTags = data?.interactedTags || [];
+  const interactedTags = data?.topInteractedTags || [];
 
   const getAvatarUrl = (avatar: { url?: string } | string): string => {
     if (typeof avatar === 'string') {
@@ -36,7 +38,7 @@ const UserCard = ({ user }: Props) => {
     >
       <article className="background-light900_dark200 light-border flex w-full flex-col items-center justify-center rounded-2xl border p-8">
         <Image
-          src={getAvatarUrl(user.avatar)}  // Updated to use user.avatar
+          src={getAvatarUrl(user.avatar)} // Updated to use user.avatar
           alt="user profile picture"
           width={100}
           height={100}
