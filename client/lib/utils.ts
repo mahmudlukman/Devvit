@@ -8,11 +8,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const getTimestamp = (createdAt: Date): string => {
-  const now = new Date();
-  const timeDifference = now.getTime() - createdAt.getTime();
+export const getTimestamp = (createdAt: Date | string): string => {
+  const createdAtDate = new Date(createdAt);
+  
+  if (isNaN(createdAtDate.getTime())) {
+    console.error('Invalid date provided to getTimestamp');
+    return 'Invalid date';
+  }
 
-  // Define time intervals in milliseconds
+  const now = new Date();
+  const timeDifference = now.getTime() - createdAtDate.getTime();
+  
+  // Rest of the function remains the same
   const minute = 60 * 1000;
   const hour = 60 * minute;
   const day = 24 * hour;

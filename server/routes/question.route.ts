@@ -14,7 +14,7 @@ const questionRouter = express.Router();
 questionRouter.get(
   '/get-questions',
   // updateAccessToken,
-  isAuthenticated,
+  // isAuthenticated,
   getQuestions
 );
 
