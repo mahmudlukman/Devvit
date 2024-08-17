@@ -9,7 +9,25 @@ export const tagsApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
     }),
+    getAllTags: builder.query({
+      query: () => ({
+        url: 'get-tags',
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
+    getQuestionByTags: builder.query({
+      query: (tagId) => ({
+        url: `question-by-tag/${tagId}`,
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
   }),
 });
 
-export const { useGetTopInteractedTagsQuery } = tagsApi;
+export const {
+  useGetTopInteractedTagsQuery,
+  useGetAllTagsQuery,
+  useGetQuestionByTagsQuery,
+} = tagsApi;
