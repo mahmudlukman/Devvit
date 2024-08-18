@@ -4,7 +4,9 @@ import {
   getAllUsers,
   getLoggedInUser,
   getSavedQuestions,
+  getUserAnswers,
   getUserInfo,
+  getUserQuestions,
   toggleSaveQuestion,
   updateUserProfile,
 } from '../controllers/user.controller';
@@ -34,10 +36,24 @@ userRouter.post(
   toggleSaveQuestion
 );
 userRouter.get(
-  '/get-saved-questions/:userId',
+  '/get-saved-questions',
   // updateAccessToken,
   isAuthenticated,
   getSavedQuestions
+);
+
+userRouter.get(
+  '/get-user-answers',
+  // updateAccessToken,
+  isAuthenticated,
+  getUserAnswers
+);
+
+userRouter.get(
+  '/get-user-questions',
+  // updateAccessToken,
+  isAuthenticated,
+  getUserQuestions
 );
 
 export default userRouter;

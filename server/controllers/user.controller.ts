@@ -144,7 +144,7 @@ export const getAllUsers = catchAsyncError(
         pageSize = 20,
         filter,
         searchQuery,
-      } = req.params as IGetAllUsers;
+      } = req.query as IGetAllUsers;
       const skipAmount = (page - 1) * pageSize;
 
       const query: FilterQuery<typeof UserModel> = {};
@@ -268,7 +268,7 @@ export const deleteUser = catchAsyncError(
       // const userQuestionIds = await Question.find({ author: user._id}).distinct('_id');
 
       // delete user questions
-      // await Question.deleteMany({ author: user._id });
+      await Question.deleteMany({ author: user._id });
 
       // TODO: delete user answers, comments, etc.
 
@@ -340,7 +340,7 @@ export const getSavedQuestions = catchAsyncError(
         pageSize = 20,
         filter,
         searchQuery,
-      } = req.params as IGetSavedQuestions;
+      } = req.query as IGetSavedQuestions;
 
       const skipAmount = (page - 1) * pageSize;
 
@@ -420,7 +420,7 @@ export const getUserQuestions = catchAsyncError(
         userId,
         page = 1,
         pageSize = 10,
-      } = req.params as IGetUserQuestions;
+      } = req.query as IGetUserQuestions;
 
       const skipAmount = (page - 1) * pageSize;
 
@@ -461,7 +461,7 @@ export const getUserAnswers = catchAsyncError(
         userId,
         page = 1,
         pageSize = 10,
-      } = req.params as IGetUserQuestions;
+      } = req.query as IGetUserAnswers;
 
       const skipAmount = (page - 1) * pageSize;
 

@@ -30,17 +30,66 @@ export const getTopInteractedTags = catchAsyncError(
   }
 );
 
+interface IGetAllTags {
+  page?: number;
+  pageSize?: number;
+  filter?: string;
+  searchQuery?: string;
+}
+
 // get all tags
 export const getAllTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tags = await UserModel.find({});
+      const {
+        searchQuery,
+        filter,
+        page = 1,
+        pageSize = 10,
+      } = req.query as IGetAllTags;
 
-      if (!tags) {
-        return next(new ErrorHandler('Tags not found', 400));
+      const skipAmount = (page - 1) * pageSize;
+
+      const query: FilterQuery<typeof Tag> = {};
+
+      if (searchQuery) {
+        const escapedSearchQuery = searchQuery.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&'
+        );
+        query.$or = [{ name: { $regex: new RegExp(escapedSearchQuery, 'i') } }];
       }
 
-      res.status(200).json({ success: true, tags });
+      let sortOptions = {};
+
+      switch (filter) {
+        case 'popular':
+          sortOptions = { questions: -1 };
+          break;
+        case 'recent':
+          sortOptions = { createdAt: -1 };
+          break;
+        case 'name':
+          sortOptions = { name: 1 };
+          break;
+        case 'old':
+          sortOptions = { createdAt: 1 };
+          break;
+
+        default:
+          break;
+      }
+
+      const totalTags = await Tag.countDocuments(query);
+
+      const tags = await Tag.find(query)
+        .sort(sortOptions)
+        .skip(skipAmount)
+        .limit(pageSize);
+
+      const isNext = totalTags > skipAmount + tags.length;
+
+      res.status(200).json({ success: true, tags, isNext });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -102,5 +151,3 @@ export const getQuestionsByTagId = catchAsyncError(
     }
   }
 );
-
-
