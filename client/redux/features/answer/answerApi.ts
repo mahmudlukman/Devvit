@@ -10,7 +10,14 @@ export const answerApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
     }),
+    getAnswers: builder.query({
+      query: ({ questionId }) => ({
+        url: `get-answers/${questionId}`,
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
   }),
 });
 
-export const { useCreateAnswerMutation } = answerApi;
+export const { useCreateAnswerMutation, useGetAnswersQuery } = answerApi;

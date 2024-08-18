@@ -24,6 +24,20 @@ export const questionApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
     }),
+    upvoteQuestion: builder.mutation({
+      query: () => ({
+        url: 'upvote-question',
+        method: 'PUT',
+        credentials: 'include' as const,
+      }),
+    }),
+    downvoteQuestion: builder.mutation({
+      query: () => ({
+        url: 'downvote-question',
+        method: 'PUT',
+        credentials: 'include' as const,
+      }),
+    }),
   }),
 });
 
@@ -31,4 +45,6 @@ export const {
   useGetQuestionsQuery,
   useCreateQuestionMutation,
   useGetQuestionQuery,
+  useUpvoteQuestionMutation,
+  useDownvoteQuestionMutation,
 } = questionApi;

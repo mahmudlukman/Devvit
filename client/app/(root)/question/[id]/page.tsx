@@ -1,91 +1,89 @@
+'use client';
+
 import Answer from '@/components/forms/Answer';
 import AllAnswers from '@/components/shared/AllAnswers';
 import Metric from '@/components/shared/Metric';
 import ParseHTML from '@/components/shared/ParseHTML';
 import RenderTag from '@/components/shared/RenderTag';
 import Votes from '@/components/shared/Votes';
-import { getQuestionById } from '@/lib/actions/question.action';
-import { getUserById } from '@/lib/actions/user.action';
+import { useGetQuestionQuery } from '@/redux/features/question/questionApi';
 import { formatAndDivideNumber, getTimestamp } from '@/lib/utils';
-import { auth } from '@clerk/nextjs';
+import { useSelector } from 'react-redux';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react'
+import React from 'react';
 
-const Page = async ({ params, searchParams }) => {
-  const { userId: clerkId } = auth();
+const Page = ({ params }: any) => {
+  const { user } = useSelector((state: any) => state.auth);
+  const { data: result, isLoading, isError } = useGetQuestionQuery(params.id);
 
-  let mongoUser;
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !result) return <div>Error loading question</div>;
 
-  if(clerkId) {
-    mongoUser = await getUserById({ userId: clerkId })
-  }
-
-  const result = await getQuestionById({ questionId: params.id });
+  console.log(result)
 
   return (
     <>
       <div className="flex-start w-full flex-col">
         <div className="flex w-full flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
-          <Link href={`/profile/${result.author.clerkId}`}
-          className="flex items-center justify-start gap-1"  >
+          <Link href={`/profile/${result.question.author._id}`} className="flex items-center justify-start gap-1">
             <Image 
-              src={result.author.picture}
+              src={result.question.author.avatar.url}
               className="rounded-full"
               width={22}
               height={22}
               alt="profile"
             />
             <p className="paragraph-semibold text-dark300_light700">
-              {result.author.name}
+              {result.question.author.name}
             </p>
           </Link>
           <div className="flex justify-end">
             <Votes 
               type="Question"
-              itemId={JSON.stringify(result._id)}
-              userId={JSON.stringify(mongoUser._id)}
-              upvotes={result.upvotes.length}
-              hasupVoted={result.upvotes.includes(mongoUser._id)}
-              downvotes={result.downvotes.length}
-              hasdownVoted={result.downvotes.includes(mongoUser._id)}
-              hasSaved={mongoUser?.saved.includes(result._id)}
+              itemId={result.question._id}
+              userId={user._id} // Use the Redux user ID
+              upvotes={result.question.upvotes.length}
+              hasupVoted={result.question.upvotes.includes(user._id)}
+              downvotes={result.question.downvotes.length}
+              hasdownVoted={result.question.downvotes.includes(user._id)}
+              hasSaved={user?.saved.includes(result.question._id)}
             />
           </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full text-left">
-          {result.title}
+          {result.question.title}
         </h2>
       </div>
 
       <div className="mb-8 mt-5 flex flex-wrap gap-4">
-          <Metric 
-            imgUrl="/assets/icons/clock.svg"
-            alt="clock icon"
-            value={` asked ${getTimestamp(result.createdAt)}`}
-            title=" Asked"
-            textStyles="small-medium text-dark400_light800"
-          />
-          <Metric 
-            imgUrl="/assets/icons/message.svg"
-            alt="message"
-            value={formatAndDivideNumber(result.answers.length)}
-            title=" Answers"
-            textStyles="small-medium text-dark400_light800"
-          />
-          <Metric 
-            imgUrl="/assets/icons/eye.svg"
-            alt="eye"
-            value={formatAndDivideNumber(result.views)}
-            title=" Views"
-            textStyles="small-medium text-dark400_light800"
-          />
+        <Metric 
+          imgUrl="/assets/icons/clock.svg"
+          alt="clock icon"
+          value={` asked ${getTimestamp(result.question.createdAt)}`}
+          title=" Asked"
+          textStyles="small-medium text-dark400_light800"
+        />
+        <Metric 
+          imgUrl="/assets/icons/message.svg"
+          alt="message"
+          value={formatAndDivideNumber(result.question.answers.length)}
+          title=" Answers"
+          textStyles="small-medium text-dark400_light800"
+        />
+        <Metric 
+          imgUrl="/assets/icons/eye.svg"
+          alt="eye"
+          value={formatAndDivideNumber(result.question.views)}
+          title=" Views"
+          textStyles="small-medium text-dark400_light800"
+        />
       </div>
 
-      <ParseHTML data={result.content} />
+      <ParseHTML data={result.question.content} />
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {result.tags.map((tag: any) => (
+        {result.question.tags.map((tag: any) => (
           <RenderTag 
             key={tag._id}
             _id={tag._id}
@@ -96,18 +94,18 @@ const Page = async ({ params, searchParams }) => {
       </div>
 
       <AllAnswers 
-        questionId={result._id}
-        userId={mongoUser._id}
-        totalAnswers={result.answers.length}
+        questionId={result.question._id}
+        userId={user._id}
+        totalAnswers={result.question.answers.length}
       />
 
       <Answer 
-        question={result.content}
-        questionId={JSON.stringify(result._id)}
-        authorId={JSON.stringify(mongoUser._id)}
+        question={result.question.content}
+        questionId={result.question._id}
+        authorId={user._id}
       />
     </>
-  )
+  );
 }
 
-export default Page
+export default Page;

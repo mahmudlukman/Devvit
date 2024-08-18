@@ -91,48 +91,40 @@ export const getQuestionById = catchAsyncError(
 interface IVoteQuestion {
   questionId: Schema.Types.ObjectId;
   userId: Schema.Types.ObjectId;
+  hasupVoted: Boolean,
+  hasdownVoted: Boolean,
 }
 
-export const toggleVoteQuestion = catchAsyncError(
+// upvote questions
+export const upvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { questionId, userId } = req.body as IVoteQuestion;
-
-      const question = await Question.findById(questionId);
-
-      if (!question) {
-        return next(new ErrorHandler('Question not found', 404));
-      }
-
-      const hasUpvoted = question.upvotes.includes(userId);
-      const hasDownvoted = question.downvotes.includes(userId);
+      const { questionId, userId, hasupVoted, hasdownVoted } =
+        req.body as IVoteQuestion;
 
       let updateQuery = {};
 
-      if (hasUpvoted) {
-        // If already upvoted, remove upvote and add downvote
-        updateQuery = {
-          $pull: { upvotes: userId },
-          $addToSet: { downvotes: userId }
-        };
-      } else if (hasDownvoted) {
-        // If already downvoted, remove downvote and add upvote
+      if (hasupVoted) {
+        updateQuery = { $pull: { upvotes: userId } };
+      } else if (hasdownVoted) {
         updateQuery = {
           $pull: { downvotes: userId },
-          $addToSet: { upvotes: userId }
+          $push: { upvotes: userId },
         };
       } else {
-        // If neither upvoted nor downvoted, add upvote
         updateQuery = { $addToSet: { upvotes: userId } };
       }
 
-      const updatedQuestion = await Question.findByIdAndUpdate(
+      const question = await Question.findByIdAndUpdate(
         questionId,
         updateQuery,
         { new: true }
       );
 
-      res.status(200).json({ success: true, question: updatedQuestion });
+      if (!question) {
+        return next(new ErrorHandler('Question not found', 400));
+      }
+      res.status(200).json({ success: true, question });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -140,71 +132,82 @@ export const toggleVoteQuestion = catchAsyncError(
 );
 
 // upvote questions
-// export const upvoteQuestion = catchAsyncError(
+export const downvoteQuestion = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { questionId, userId, hasupVoted, hasdownVoted } =
+        req.body as IVoteQuestion;
+
+      let updateQuery = {};
+
+      if (hasdownVoted) {
+        updateQuery = { $pull: { downvote: userId } };
+      } else if (hasupVoted) {
+        updateQuery = {
+          $pull: { upvotes: userId },
+          $push: { downvotes: userId },
+        };
+      } else {
+        updateQuery = { $addToSet: { downvotes: userId } };
+      }
+
+      const question = await Question.findByIdAndUpdate(
+        questionId,
+        updateQuery,
+        { new: true }
+      );
+
+      if (!question) {
+        return next(new ErrorHandler('Question not found', 400));
+      }
+      res.status(200).json({ success: true, question });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+
+// export const toggleVoteQuestion = catchAsyncError(
 //   async (req: Request, res: Response, next: NextFunction) => {
 //     try {
-//       const { questionId, userId, hasupVoted, hasdownVoted } =
-//         req.body as IVoteQuestion;
+//       const { questionId, userId } = req.body as IVoteQuestion;
+
+//       const question = await Question.findById(questionId);
+
+//       if (!question) {
+//         return next(new ErrorHandler('Question not found', 404));
+//       }
+
+//       const hasUpvoted = question.upvotes.includes(userId);
+//       const hasDownvoted = question.downvotes.includes(userId);
 
 //       let updateQuery = {};
 
-//       if (hasupVoted) {
-//         updateQuery = { $pull: { upvotes: userId } };
-//       } else if (hasdownVoted) {
+//       if (hasUpvoted) {
+//         // If already upvoted, remove upvote and add downvote
+//         updateQuery = {
+//           $pull: { upvotes: userId },
+//           $addToSet: { downvotes: userId }
+//         };
+//       } else if (hasDownvoted) {
+//         // If already downvoted, remove downvote and add upvote
 //         updateQuery = {
 //           $pull: { downvotes: userId },
-//           $push: { upvotes: userId },
+//           $addToSet: { upvotes: userId }
 //         };
 //       } else {
+//         // If neither upvoted nor downvoted, add upvote
 //         updateQuery = { $addToSet: { upvotes: userId } };
 //       }
 
-//       const question = await Question.findByIdAndUpdate(
+//       const updatedQuestion = await Question.findByIdAndUpdate(
 //         questionId,
 //         updateQuery,
 //         { new: true }
 //       );
 
-//       if (!question) {
-//         return next(new ErrorHandler('Question not found', 400));
-//       }
-//       res.status(200).json({ success: true, question });
-//     } catch (error: any) {
-//       return next(new ErrorHandler(error.message, 400));
-//     }
-//   }
-// );
-
-// // upvote questions
-// export const downvoteQuestion = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { questionId, userId, hasupVoted, hasdownVoted } =
-//         req.body as IVoteQuestion;
-
-//       let updateQuery = {};
-
-//       if (hasdownVoted) {
-//         updateQuery = { $pull: { downvote: userId } };
-//       } else if (hasupVoted) {
-//         updateQuery = {
-//           $pull: { upvotes: userId },
-//           $push: { downvotes: userId },
-//         };
-//       } else {
-//         updateQuery = { $addToSet: { downvotes: userId } };
-//       }
-
-//       const question = await Question.findByIdAndUpdate(
-//         questionId,
-//         updateQuery,
-//         { new: true }
-//       );
-
-//       if (!question) {
-//         return next(new ErrorHandler('Question not found', 400));
-//       }
-//       res.status(200).json({ success: true, question });
+//       res.status(200).json({ success: true, question: updatedQuestion });
 //     } catch (error: any) {
 //       return next(new ErrorHandler(error.message, 400));
 //     }
