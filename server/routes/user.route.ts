@@ -2,6 +2,7 @@ import express from 'express';
 import {
   deleteUser,
   getAllUsers,
+  getLoggedInUser,
   getSavedQuestions,
   getUserInfo,
   toggleSaveQuestion,
@@ -11,7 +12,8 @@ import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
 const userRouter = express.Router();
 
-userRouter.get('/me', isAuthenticated, getUserInfo);
+userRouter.get('/me', isAuthenticated, getLoggedInUser);
+userRouter.get('/get-user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
   // updateAccessToken,

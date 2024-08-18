@@ -10,10 +10,23 @@ import { FilterQuery } from 'mongoose';
 import Tag from '../models/tag.model';
 
 // get logged in user info
-export const getUserInfo = catchAsyncError(
+export const getLoggedInUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
+      const user = await UserModel.findById(userId).select('-password');
+      res.status(200).json({ success: true, user });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// get user info
+export const getUserInfo = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.params;
       const user = await UserModel.findById(userId).select('-password');
       res.status(200).json({ success: true, user });
     } catch (error: any) {
@@ -34,7 +47,12 @@ interface IGetAllUsers {
 export const getAllUsers = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const { page = 1, pageSize = 20, filter, searchQuery } = req.params as IGetAllUsers;
+      const {
+        page = 1,
+        pageSize = 20,
+        filter,
+        searchQuery,
+      } = req.params as IGetAllUsers;
 
       const users = await UserModel.find({}).sort({ createdAt: -1 });
 
