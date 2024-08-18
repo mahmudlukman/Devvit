@@ -3,7 +3,7 @@ import { apiSlice } from '../api/apiSlice';
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSavedQuestions: builder.query({
-      query: ({userId}) => ({
+      query: ({ userId }) => ({
         url: `get-saved-questions/${userId}`,
         method: 'GET',
         credentials: 'include' as const,
@@ -24,8 +24,8 @@ export const userApi = apiSlice.injectEndpoints({
       }),
     }),
     getUserInfo: builder.query({
-      query: (id) => ({
-        url: `me/${id}`,
+      query: ({ userId }) => ({
+        url: `get-user-info/${userId}`,
         method: 'GET',
         credentials: 'include' as const,
       }),
@@ -37,4 +37,5 @@ export const {
   useGetSavedQuestionsQuery,
   useGetAllUsersQuery,
   useToggleSavedQuestionMutation,
+  useGetUserInfoQuery,
 } = userApi;

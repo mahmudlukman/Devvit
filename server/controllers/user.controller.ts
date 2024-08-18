@@ -6,8 +6,11 @@ import { NextFunction, Request, Response } from 'express';
 import cloudinary from 'cloudinary';
 import Question from '../models/question.model';
 import { redis } from '../utils/redis';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Schema } from 'mongoose';
 import Tag from '../models/tag.model';
+import Answer from '../models/answer.model';
+import { BadgeCriteriaType } from '../@types';
+import { assignBadges } from '../utils/badges';
 
 // get logged in user info
 export const getLoggedInUser = catchAsyncError(
@@ -22,8 +25,8 @@ export const getLoggedInUser = catchAsyncError(
   }
 );
 
-// get user info
-export const getUserInfo = catchAsyncError(
+// get logged in user info
+export const getUserById = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params;
@@ -35,7 +38,96 @@ export const getUserInfo = catchAsyncError(
   }
 );
 
-// Login user
+// get user info
+export const getUserInfo = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.params;
+      const user = await UserModel.findById(userId).select('-password');
+      if (!user) {
+        return next(new ErrorHandler('User not found', 400));
+      }
+
+      const totalQuestions = await Question.countDocuments({
+        author: user._id,
+      });
+      const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+      const [questionUpvotes] = await Question.aggregate([
+        { $match: { author: user._id } },
+        {
+          $project: {
+            _id: 0,
+            upvotes: { $size: '$upvotes' },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalUpvotes: { $sum: '$upvotes' },
+          },
+        },
+      ]);
+
+      const [answerUpvotes] = await Answer.aggregate([
+        { $match: { author: user._id } },
+        {
+          $project: {
+            _id: 0,
+            upvotes: { $size: '$upvotes' },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalUpvotes: { $sum: '$upvotes' },
+          },
+        },
+      ]);
+
+      const [questionViews] = await Answer.aggregate([
+        { $match: { author: user._id } },
+        {
+          $group: {
+            _id: null,
+            totalViews: { $sum: '$views' },
+          },
+        },
+      ]);
+
+      const criteria = [
+        { type: 'QUESTION_COUNT' as BadgeCriteriaType, count: totalQuestions },
+        { type: 'ANSWER_COUNT' as BadgeCriteriaType, count: totalAnswers },
+        {
+          type: 'QUESTION_UPVOTES' as BadgeCriteriaType,
+          count: questionUpvotes?.totalUpvotes || 0,
+        },
+        {
+          type: 'ANSWER_UPVOTES' as BadgeCriteriaType,
+          count: answerUpvotes?.totalUpvotes || 0,
+        },
+        {
+          type: 'TOTAL_VIEWS' as BadgeCriteriaType,
+          count: questionViews?.totalViews || 0,
+        },
+      ];
+
+      const badgeCounts = assignBadges({ criteria });
+
+      res.status(200).json({
+        success: true,
+        user,
+        totalQuestions,
+        totalAnswers,
+        badgeCounts,
+        reputation: user.reputation,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
 interface IGetAllUsers {
   page?: number;
   pageSize?: number;
@@ -53,10 +145,47 @@ export const getAllUsers = catchAsyncError(
         filter,
         searchQuery,
       } = req.params as IGetAllUsers;
+      const skipAmount = (page - 1) * pageSize;
 
-      const users = await UserModel.find({}).sort({ createdAt: -1 });
+      const query: FilterQuery<typeof UserModel> = {};
 
-      res.status(200).json({ success: true, users });
+      if (searchQuery) {
+        const escapedSearchQuery = searchQuery.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&'
+        );
+        query.$or = [
+          { name: { $regex: new RegExp(escapedSearchQuery, 'i') } },
+          { username: { $regex: new RegExp(escapedSearchQuery, 'i') } },
+        ];
+      }
+
+      let sortOptions = {};
+
+      switch (filter) {
+        case 'new_users':
+          sortOptions = { joinedAt: -1 };
+          break;
+        case 'old_users':
+          sortOptions = { joinedAt: 1 };
+          break;
+        case 'top_contributors':
+          sortOptions = { reputation: -1 };
+          break;
+
+        default:
+          break;
+      }
+
+      const users = await UserModel.find(query)
+        .sort(sortOptions)
+        .skip(skipAmount)
+        .limit(pageSize);
+
+      const totalUsers = await UserModel.countDocuments(query);
+      const isNext = totalUsers > skipAmount + users.length;
+
+      res.status(200).json({ success: true, users, isNext });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -193,6 +322,14 @@ export const toggleSaveQuestion = catchAsyncError(
   }
 );
 
+interface IGetSavedQuestions {
+  userId?: Schema.Types.ObjectId;
+  page?: number;
+  pageSize?: number;
+  filter?: string;
+  searchQuery?: string;
+}
+
 // get Saved Questions
 export const getSavedQuestions = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -200,20 +337,47 @@ export const getSavedQuestions = catchAsyncError(
       const {
         userId,
         page = 1,
-        pageSize = 10,
+        pageSize = 20,
         filter,
         searchQuery,
-      } = req.params;
+      } = req.params as IGetSavedQuestions;
+
+      const skipAmount = (page - 1) * pageSize;
 
       const query: FilterQuery<typeof Question> = searchQuery
         ? { title: { $regex: new RegExp(searchQuery, 'i') } }
         : {};
 
+      let sortOptions = {};
+
+      switch (filter) {
+        case 'most_recent':
+          sortOptions = { createdAt: -1 };
+          break;
+        case 'oldest':
+          sortOptions = { createdAt: 1 };
+          break;
+        case 'most_voted':
+          sortOptions = { upvotes: -1 };
+          break;
+        case 'most_viewed':
+          sortOptions = { views: -1 };
+          break;
+        case 'most_answered':
+          sortOptions = { answers: -1 };
+          break;
+
+        default:
+          break;
+      }
+
       const user = await UserModel.findById(userId).populate({
         path: 'saved',
         match: query,
         options: {
-          sort: { createdAt: -1 },
+          sort: sortOptions,
+          skip: skipAmount,
+          limit: pageSize + 1,
         },
         populate: [
           { path: 'tags', model: Tag, select: '_id name' },
@@ -225,13 +389,99 @@ export const getSavedQuestions = catchAsyncError(
         ],
       });
 
+      const isNext = user?.saved && user.saved.length > pageSize;
+
       if (!user) {
         return next(new ErrorHandler('User not found', 404));
       }
 
       const savedQuestions = user.saved;
 
-      res.status(200).json({ success: true, savedQuestions });
+      res
+        .status(200)
+        .json({ success: true, questions: savedQuestions, isNext });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+interface IGetUserQuestions {
+  userId?: Schema.Types.ObjectId;
+  page?: number;
+  pageSize?: number;
+}
+
+// get User Question
+export const getUserQuestions = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        userId,
+        page = 1,
+        pageSize = 10,
+      } = req.params as IGetUserQuestions;
+
+      const skipAmount = (page - 1) * pageSize;
+
+      const totalQuestions = await Question.countDocuments({ author: userId });
+
+      const userQuestions = await Question.find({ author: userId })
+        .sort({ createdAt: -1, views: -1, upvotes: -1 })
+        .skip(skipAmount)
+        .limit(pageSize)
+        .populate('tags', '_id name')
+        .populate('author', '_id userId name avatar');
+
+      const isNextQuestions =
+        totalQuestions > skipAmount + userQuestions.length;
+
+      res.status(200).json({
+        success: true,
+        totalQuestions,
+        questions: userQuestions,
+        isNextQuestions,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+interface IGetUserAnswers {
+  userId?: Schema.Types.ObjectId;
+  page?: number;
+  pageSize?: number;
+}
+
+// get User Question
+export const getUserAnswers = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        userId,
+        page = 1,
+        pageSize = 10,
+      } = req.params as IGetUserQuestions;
+
+      const skipAmount = (page - 1) * pageSize;
+
+      const totalAnswers = await Answer.countDocuments({ author: userId });
+
+      const userAnswers = await Answer.find({ author: userId })
+        .sort({ createdAt: -1 })
+        .skip(skipAmount)
+        .limit(pageSize)
+        .populate('question', '_id title')
+        .populate('author', '_id userId name avatar');
+
+      const isNextAnswer = totalAnswers > skipAmount + userAnswers.length;
+
+      res.status(200).json({
+        success: true,
+        totalAnswers,
+        answers: userAnswers,
+        isNextAnswer,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
