@@ -12,7 +12,7 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const questionRouter = express.Router();
 
 questionRouter.get(
-  '/get-questions',
+  '/questions',
   // updateAccessToken,
   // isAuthenticated,
   getQuestions
@@ -26,7 +26,7 @@ questionRouter.post(
 );
 
 questionRouter.get(
-  '/get-question/:id',
+  '/question/:id',
   // updateAccessToken,
   isAuthenticated,
   getQuestionById

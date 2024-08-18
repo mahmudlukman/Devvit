@@ -4,7 +4,7 @@ export const questionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getQuestions: builder.query({
       query: () => ({
-        url: 'get-questions',
+        url: 'questions',
         method: 'GET',
         credentials: 'include' as const,
       }),
@@ -19,7 +19,7 @@ export const questionApi = apiSlice.injectEndpoints({
     }),
     getQuestion: builder.query({
       query: (id) => ({
-        url: `get-question/${id}`,
+        url: `question/${id}`,
         method: 'GET',
         credentials: 'include' as const,
       }),

@@ -12,7 +12,7 @@ export const answerApi = apiSlice.injectEndpoints({
     }),
     getAnswers: builder.query({
       query: ({ questionId }) => ({
-        url: `get-answers/${questionId}`,
+        url: `answers/${questionId}`,
         method: 'GET',
         credentials: 'include' as const,
       }),

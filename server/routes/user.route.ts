@@ -15,14 +15,14 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const userRouter = express.Router();
 
 userRouter.get('/me', isAuthenticated, getLoggedInUser);
-userRouter.get('/get-user-info/:userId', isAuthenticated, getUserInfo);
+userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
   // updateAccessToken,
   isAuthenticated,
   updateUserProfile
 );
-userRouter.get('/get-users', isAuthenticated, getAllUsers);
+userRouter.get('/users', isAuthenticated, getAllUsers);
 userRouter.delete(
   '/delete-user/:id',
   // updateAccessToken,
@@ -36,21 +36,21 @@ userRouter.post(
   toggleSaveQuestion
 );
 userRouter.get(
-  '/get-saved-questions',
+  '/saved-questions',
   // updateAccessToken,
   isAuthenticated,
   getSavedQuestions
 );
 
 userRouter.get(
-  '/get-user-answers',
+  '/user-answers',
   // updateAccessToken,
   isAuthenticated,
   getUserAnswers
 );
 
 userRouter.get(
-  '/get-user-questions',
+  '/user-questions',
   // updateAccessToken,
   isAuthenticated,
   getUserQuestions

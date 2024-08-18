@@ -97,6 +97,7 @@ export const getAllTags = catchAsyncError(
 );
 
 interface IGetQuestionsByTagId {
+  tagId?: Schema.Types.ObjectId;
   page?: number;
   pageSize?: number;
   searchQuery?: string;
@@ -106,12 +107,14 @@ interface IGetQuestionsByTagId {
 export const getQuestionsByTagId = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { tagId } = req.params;
       const {
+        tagId,
         page = 1,
         pageSize = 10,
         searchQuery,
       } = req.query as IGetQuestionsByTagId;
+
+      const skipAmount = (page - 1) * pageSize;
 
       const tagFilter: FilterQuery<ITag> = { _id: tagId };
 
@@ -123,8 +126,8 @@ export const getQuestionsByTagId = catchAsyncError(
           : {},
         options: {
           sort: { createdAt: -1 },
-          skip: (Number(page) - 1) * Number(pageSize),
-          limit: Number(pageSize),
+          skip: skipAmount,
+          limit: pageSize + 1, // +1 to check if there is next page
         },
         populate: [
           { path: 'tags', model: Tag, select: '_id name' },
@@ -140,12 +143,31 @@ export const getQuestionsByTagId = catchAsyncError(
         return next(new ErrorHandler('Tag not found', 400));
       }
 
+      const isNext = tag.questions.length > pageSize;
+
       const questions = tag.questions;
       res.status(201).json({
         success: true,
         tagTitle: tag.name,
         questions,
+        isNext,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// get Top Popular Tags
+export const getTopPopularTags = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const popularTags = await Tag.aggregate([
+        { $project: { name: 1, numberOfQuestions: { $size: "$questions" }}},
+        { $sort: { numberOfQuestions: -1 }}, 
+        { $limit: 5 }
+      ])
+      res.status(200).json({ success: true, popularTags });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

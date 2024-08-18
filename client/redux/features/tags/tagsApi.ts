@@ -4,14 +4,14 @@ export const tagsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getTopInteractedTags: builder.query({
       query: (id) => ({
-        url: `get-top-tags/${id}`,
+        url: `top-tags/${id}`,
         method: 'GET',
         credentials: 'include' as const,
       }),
     }),
     getAllTags: builder.query({
       query: () => ({
-        url: 'get-tags',
+        url: 'tags',
         method: 'GET',
         credentials: 'include' as const,
       }),

@@ -19,7 +19,7 @@ answerRouter.post(
 );
 
 answerRouter.get(
-  '/get-answers/:questionId',
+  '/answers/:questionId',
   // updateAccessToken,
   isAuthenticated,
   getAnswers
