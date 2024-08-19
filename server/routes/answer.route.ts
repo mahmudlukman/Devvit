@@ -1,10 +1,10 @@
 import express from 'express';
 import {
   createAnswer,
-  // downvoteAnswers,
+  deleteAnswer,
+  downvoteAnswers,
   getAnswers,
-  toggleVoteAnswer,
-  // upvoteAnswers,
+  upvoteAnswers,
 } from '../controllers/answer.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
@@ -19,30 +19,31 @@ answerRouter.post(
 );
 
 answerRouter.get(
-  '/answers/:questionId',
+  '/answers',
   // updateAccessToken,
   isAuthenticated,
   getAnswers
 );
 
-// answerRouter.put(
-//   '/upvote-answer',
-//   // updateAccessToken,
-//   isAuthenticated,
-//   upvoteAnswers
-// );
-// answerRouter.put(
-//   '/downvote-answer',
-//   // updateAccessToken,
-//   isAuthenticated,
-//   downvoteAnswers
-// );
-
 answerRouter.put(
-  '/vote-answer',
+  '/upvote-answer',
   // updateAccessToken,
   isAuthenticated,
-  toggleVoteAnswer
+  upvoteAnswers
 );
+answerRouter.put(
+  '/downvote-answer',
+  // updateAccessToken,
+  isAuthenticated,
+  downvoteAnswers
+);
+
+answerRouter.delete(
+  '/delete-answer/:answerId',
+  // updateAccessToken,
+  isAuthenticated,
+  deleteAnswer
+);
+
 
 export default answerRouter;

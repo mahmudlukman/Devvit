@@ -257,7 +257,7 @@ export const deleteQuestion = catchAsyncError(
 
       const question = await Question.findById(questionId)
 
-      if(!questionId){
+      if(!question){
         return next(new ErrorHandler("Question not found!", 400));
       }
 

@@ -75,4 +75,8 @@ export const {
   useGetQuestionQuery,
   useUpvoteQuestionMutation,
   useDownvoteQuestionMutation,
+  useDeleteQuestionMutation,
+  useEditQuestionMutation,
+  useGetHotQuestionQuery,
+  useGetRecommendedQuestionQuery
 } = questionApi;

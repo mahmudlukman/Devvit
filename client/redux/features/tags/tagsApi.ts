@@ -23,6 +23,13 @@ export const tagsApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
     }),
+    getPopularTags: builder.query({
+      query: () => ({
+        url: 'popular-tags',
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
   }),
 });
 
@@ -30,4 +37,5 @@ export const {
   useGetTopInteractedTagsQuery,
   useGetAllTagsQuery,
   useGetQuestionByTagsQuery,
+  useGetPopularTagsQuery,
 } = tagsApi;
