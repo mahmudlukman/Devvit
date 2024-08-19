@@ -38,6 +38,34 @@ export const questionApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
     }),
+    deleteQuestion: builder.mutation({
+      query: (questionId) => ({
+        url: `question/${questionId}`,
+        method: 'DELETE',
+        credentials: 'include' as const,
+      }),
+    }),
+    editQuestion: builder.mutation({
+      query: (questionId) => ({
+        url: `edit-question/${questionId}`,
+        method: 'PUT',
+        credentials: 'include' as const,
+      }),
+    }),
+    getHotQuestion: builder.query({
+      query: () => ({
+        url: 'hot-questions',
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
+    getRecommendedQuestion: builder.query({
+      query: () => ({
+        url: 'recommended-questions',
+        method: 'GET',
+        credentials: 'include' as const,
+      }),
+    }),
   }),
 });
 

@@ -292,9 +292,6 @@ export const editQuestion = catchAsyncError(
 
       if (title) question.title = title;
       if (content) question.content = content;
-      
-      // question.title = title;
-      // question.content = content;
 
       await question.save();
       res.status(200).json({
@@ -344,7 +341,7 @@ export const getRecommendedQuestions = catchAsyncError(
         searchQuery,
       } = req.query as IRecommendedQuestions;
 
-      const user = await UserModel.findOne({ userId });
+      const user = await UserModel.findById(userId);
 
       if (!user) {
         return next(new ErrorHandler('user not found', 400));
