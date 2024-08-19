@@ -1,9 +1,13 @@
 import express from 'express';
 import {
   createQuestion,
+  deleteQuestion,
   downvoteQuestion,
+  editQuestion,
+  getHotQuestions,
   getQuestionById,
   getQuestions,
+  getRecommendedQuestions,
   // toggleVoteQuestion,
   upvoteQuestion,
 } from '../controllers/question.controller';
@@ -26,7 +30,7 @@ questionRouter.post(
 );
 
 questionRouter.get(
-  '/question/:id',
+  '/question/:questionId',
   // updateAccessToken,
   isAuthenticated,
   getQuestionById
@@ -46,11 +50,32 @@ questionRouter.put(
   upvoteQuestion
 );
 
-// questionRouter.put(
-//   '/vote-question',
-//   // updateAccessToken,
-//   isAuthenticated,
-//   toggleVoteQuestion
-// );
+questionRouter.delete(
+  '/delete-question/:questionId',
+  // updateAccessToken,
+  isAuthenticated,
+  deleteQuestion
+);
+
+questionRouter.put(
+  '/edit-question/:questionId',
+  // updateAccessToken,
+  isAuthenticated,
+  editQuestion
+);
+
+questionRouter.get(
+  '/hot-questions',
+  // updateAccessToken,
+  isAuthenticated,
+  getHotQuestions
+);
+
+questionRouter.get(
+  '/recommended-questions',
+  // updateAccessToken,
+  isAuthenticated,
+  getRecommendedQuestions
+);
 
 export default questionRouter;
