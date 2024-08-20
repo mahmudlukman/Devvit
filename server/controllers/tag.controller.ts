@@ -10,9 +10,9 @@ import Tag, { ITag } from '../models/tag.model';
 export const getTopInteractedTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params;
+      const { userId } = req.query;
 
-      const user = await UserModel.findById(id);
+      const user = await UserModel.findById(userId);
 
       if (!user) {
         return next(new ErrorHandler('User not found', 400));
@@ -97,7 +97,6 @@ export const getAllTags = catchAsyncError(
 );
 
 interface IGetQuestionsByTagId {
-  tagId?: Schema.Types.ObjectId;
   page?: number;
   pageSize?: number;
   searchQuery?: string;
@@ -107,8 +106,8 @@ interface IGetQuestionsByTagId {
 export const getQuestionsByTagId = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { tagId } = req.params;
       const {
-        tagId,
         page = 1,
         pageSize = 10,
         searchQuery,
@@ -163,10 +162,10 @@ export const getTopPopularTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const popularTags = await Tag.aggregate([
-        { $project: { name: 1, numberOfQuestions: { $size: "$questions" }}},
-        { $sort: { numberOfQuestions: -1 }}, 
-        { $limit: 5 }
-      ])
+        { $project: { name: 1, numberOfQuestions: { $size: '$questions' } } },
+        { $sort: { numberOfQuestions: -1 } },
+        { $limit: 5 },
+      ]);
       res.status(200).json({ success: true, popularTags });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));

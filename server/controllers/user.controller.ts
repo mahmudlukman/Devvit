@@ -18,43 +18,13 @@ export const getLoggedInUser = catchAsyncError(
     try {
       const userId = req.user?._id;
       const user = await UserModel.findById(userId).select('-password');
-      res.status(200).json({ success: true, user });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  }
-);
-
-// get logged in user info
-export const getUserById = catchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { userId } = req.params;
-      const user = await UserModel.findById(userId).select('-password');
-      res.status(200).json({ success: true, user });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  }
-);
-
-// get user info
-export const getUserInfo = catchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { userId } = req.params;
-      const user = await UserModel.findById(userId).select('-password');
-      if (!user) {
-        return next(new ErrorHandler('User not found', 400));
-      }
-
       const totalQuestions = await Question.countDocuments({
-        author: user._id,
+        author: user?._id,
       });
-      const totalAnswers = await Answer.countDocuments({ author: user._id });
+      const totalAnswers = await Answer.countDocuments({ author: user?._id });
 
       const [questionUpvotes] = await Question.aggregate([
-        { $match: { author: user._id } },
+        { $match: { author: user?._id } },
         {
           $project: {
             _id: 0,
@@ -70,7 +40,7 @@ export const getUserInfo = catchAsyncError(
       ]);
 
       const [answerUpvotes] = await Answer.aggregate([
-        { $match: { author: user._id } },
+        { $match: { author: user?._id } },
         {
           $project: {
             _id: 0,
@@ -86,7 +56,7 @@ export const getUserInfo = catchAsyncError(
       ]);
 
       const [questionViews] = await Answer.aggregate([
-        { $match: { author: user._id } },
+        { $match: { author: user?._id } },
         {
           $group: {
             _id: null,
@@ -120,13 +90,116 @@ export const getUserInfo = catchAsyncError(
         totalQuestions,
         totalAnswers,
         badgeCounts,
-        reputation: user.reputation,
+        reputation: user?.reputation,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
+
+// get logged in user info
+// export const getUserById = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { userId } = req.params;
+//       const user = await UserModel.findById(userId).select('-password');
+//       res.status(200).json({ success: true, user });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
+
+// get user info
+// export const getUserInfo = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { userId } = req.params;
+//       const user = await UserModel.findById(userId).select('-password');
+//       if (!user) {
+//         return next(new ErrorHandler('User not found', 400));
+//       }
+
+//       const totalQuestions = await Question.countDocuments({
+//         author: user._id,
+//       });
+//       const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+//       const [questionUpvotes] = await Question.aggregate([
+//         { $match: { author: user._id } },
+//         {
+//           $project: {
+//             _id: 0,
+//             upvotes: { $size: '$upvotes' },
+//           },
+//         },
+//         {
+//           $group: {
+//             _id: null,
+//             totalUpvotes: { $sum: '$upvotes' },
+//           },
+//         },
+//       ]);
+
+//       const [answerUpvotes] = await Answer.aggregate([
+//         { $match: { author: user._id } },
+//         {
+//           $project: {
+//             _id: 0,
+//             upvotes: { $size: '$upvotes' },
+//           },
+//         },
+//         {
+//           $group: {
+//             _id: null,
+//             totalUpvotes: { $sum: '$upvotes' },
+//           },
+//         },
+//       ]);
+
+//       const [questionViews] = await Answer.aggregate([
+//         { $match: { author: user._id } },
+//         {
+//           $group: {
+//             _id: null,
+//             totalViews: { $sum: '$views' },
+//           },
+//         },
+//       ]);
+
+//       const criteria = [
+//         { type: 'QUESTION_COUNT' as BadgeCriteriaType, count: totalQuestions },
+//         { type: 'ANSWER_COUNT' as BadgeCriteriaType, count: totalAnswers },
+//         {
+//           type: 'QUESTION_UPVOTES' as BadgeCriteriaType,
+//           count: questionUpvotes?.totalUpvotes || 0,
+//         },
+//         {
+//           type: 'ANSWER_UPVOTES' as BadgeCriteriaType,
+//           count: answerUpvotes?.totalUpvotes || 0,
+//         },
+//         {
+//           type: 'TOTAL_VIEWS' as BadgeCriteriaType,
+//           count: questionViews?.totalViews || 0,
+//         },
+//       ];
+
+//       const badgeCounts = assignBadges({ criteria });
+
+//       res.status(200).json({
+//         success: true,
+//         user,
+//         totalQuestions,
+//         totalAnswers,
+//         badgeCounts,
+//         reputation: user.reputation,
+//       });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
 
 interface IGetAllUsers {
   page?: number;
@@ -289,7 +362,8 @@ export const deleteUser = catchAsyncError(
 export const toggleSaveQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId, questionId } = req.body;
+      const userId = req.user?._id
+      const { questionId } = req.params;
 
       const user = await UserModel.findById(userId);
 
@@ -297,7 +371,7 @@ export const toggleSaveQuestion = catchAsyncError(
         throw new Error('User not found');
       }
 
-      const isQuestionSaved = user.saved.includes(questionId);
+      const isQuestionSaved = user.saved.includes(questionId as any);
 
       if (isQuestionSaved) {
         // remove question from saved
@@ -457,11 +531,7 @@ interface IGetUserAnswers {
 export const getUserAnswers = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {
-        userId,
-        page = 1,
-        pageSize = 10,
-      } = req.query as IGetUserAnswers;
+      const { userId, page = 1, pageSize = 10 } = req.query as IGetUserAnswers;
 
       const skipAmount = (page - 1) * pageSize;
 

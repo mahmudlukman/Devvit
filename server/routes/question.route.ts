@@ -17,8 +17,6 @@ const questionRouter = express.Router();
 
 questionRouter.get(
   '/questions',
-  // updateAccessToken,
-  // isAuthenticated,
   getQuestions
 );
 
@@ -31,8 +29,6 @@ questionRouter.post(
 
 questionRouter.get(
   '/question/:questionId',
-  // updateAccessToken,
-  isAuthenticated,
   getQuestionById
 );
 
@@ -66,8 +62,6 @@ questionRouter.put(
 
 questionRouter.get(
   '/hot-questions',
-  // updateAccessToken,
-  isAuthenticated,
   getHotQuestions
 );
 

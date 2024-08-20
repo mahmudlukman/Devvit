@@ -41,4 +41,10 @@ export const answerApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useCreateAnswerMutation, useGetAnswersQuery } = answerApi;
+export const {
+  useCreateAnswerMutation,
+  useGetAnswersQuery,
+  useDeleteAnswerMutation,
+  useDownvoteAnswerMutation,
+  useUpvoteAnswerMutation,
+} = answerApi;

@@ -67,10 +67,18 @@ export const formatAndDivideNumber = (num: number | undefined | null): string =>
   }
 };
 
-export const getJoinedDate = (date: Date): string => {
+export const getJoinedDate = (date: Date | string | number): string => {
+  // Ensure we have a Date object
+  const dateObject = new Date(date);
+
+  // Check if the date is valid
+  if (isNaN(dateObject.getTime())) {
+    throw new Error('Invalid date');
+  }
+
   // Extract the month and year from the Date object
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
+  const month = dateObject.toLocaleString('default', { month: 'long' });
+  const year = dateObject.getFullYear();
 
   // Create the joined date string (e.g., "September 2023")
   const joinedDate = `${month} ${year}`;

@@ -25,7 +25,7 @@ export const questionApi = apiSlice.injectEndpoints({
       }),
     }),
     upvoteQuestion: builder.mutation({
-      query: () => ({
+      query: (voteData) => ({
         url: 'upvote-question',
         method: 'PUT',
         credentials: 'include' as const,

@@ -10,13 +10,13 @@ import UserModel from '../models/user.model';
 interface ICreateAnswer {
   content: string;
   question: Schema.Types.ObjectId;
-  author: Schema.Types.ObjectId;
 }
 // create answer
 export const createAnswer = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { content, question, author } = req.body as ICreateAnswer;
+      const author = req.user
+      const { content, question } = req.body as ICreateAnswer;
 
       if (!content || !question) {
         return next(
@@ -27,7 +27,7 @@ export const createAnswer = catchAsyncError(
       const newAnswer = await Answer.create({
         content,
         question,
-        author,
+        author: req.user?._id,
       });
 
       // Add the answer to the question's answers array
@@ -112,7 +112,6 @@ export const getAnswers = catchAsyncError(
 
 interface IVoteAnswers {
   answerId: Schema.Types.ObjectId;
-  userId: Schema.Types.ObjectId;
   hasupVoted: Boolean;
   hasdownVoted: Boolean;
 }
@@ -121,7 +120,8 @@ interface IVoteAnswers {
 export const upvoteAnswers = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { answerId, userId, hasupVoted, hasdownVoted } =
+      const userId = req.user?._id
+      const { answerId, hasupVoted, hasdownVoted } =
         req.body as IVoteAnswers;
 
       let updateQuery = {};
@@ -165,7 +165,8 @@ export const upvoteAnswers = catchAsyncError(
 export const downvoteAnswers = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { answerId, userId, hasupVoted, hasdownVoted } =
+      const userId = req.user?._id
+      const { answerId, hasupVoted, hasdownVoted } =
         req.body as IVoteAnswers;
 
       let updateQuery = {};

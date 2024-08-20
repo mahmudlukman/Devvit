@@ -39,8 +39,8 @@ export const userApi = apiSlice.injectEndpoints({
       }),
     }),
     toggleSavedQuestion: builder.mutation({
-      query: () => ({
-        url: 'toggle-save-question',
+      query: (questionId) => ({
+        url: `toggle-save-question/${questionId}`,
         method: 'POST',
         credentials: 'include' as const,
       }),
@@ -70,6 +70,5 @@ export const {
   useDeleteUserMutation,
   useGetUserAnswersQuery,
   useGetUserQuestionsQuery,
-  useUpdateUserProfileMutation
-
+  useUpdateUserProfileMutation,
 } = userApi;

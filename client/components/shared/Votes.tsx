@@ -36,15 +36,16 @@ const Votes = ({
 
   const [upvoteQuestion] = useUpvoteQuestionMutation();
   const [downvoteQuestion] = useDownvoteQuestionMutation();
+  const { user } = useSelector((state: any) => state.auth);
 
   const handleVote = async (action: string) => {
-    if (!userId) {
+    if (!user) {
       return;
     }
 
     const voteData = {
-      questionId: JSON.parse(itemId),
-      userId: JSON.parse(userId),
+      questionId: itemId,
+      userId: user._id,
       hasupVoted,
       hasdownVoted,
       path: pathname,

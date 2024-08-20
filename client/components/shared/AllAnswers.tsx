@@ -7,6 +7,7 @@ import { getTimestamp } from '@/lib/utils';
 import ParseHTML from './ParseHTML';
 import Votes from './Votes';
 import { useGetAnswersQuery } from '@/redux/features/answer/answerApi';
+import { FaUser } from 'react-icons/fa';
 
 interface Props {
   questionId: string;
@@ -16,8 +17,22 @@ interface Props {
   filter?: number;
 }
 
-const AllAnswers = ({ questionId, userId, totalAnswers, page, filter }: Props) => {
-  const { data: result, isLoading, isError } = useGetAnswersQuery({ questionId });
+const AllAnswers = ({
+  questionId,
+  userId,
+  totalAnswers,
+  page,
+  filter,
+}: Props) => {
+  const {
+    data: result,
+    isLoading,
+    isError,
+  } = useGetAnswersQuery({
+    questionId,
+    page: page ? +page : 1,
+    sortBy: filter,
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !result) return <div>Error loading answers</div>;
@@ -32,33 +47,39 @@ const AllAnswers = ({ questionId, userId, totalAnswers, page, filter }: Props) =
 
       <div>
         {result.answers.map((answer: any) => (
-          <article key={answer._id} className='light-border border-b py-10'>
+          <article key={answer._id} className="light-border border-b py-10">
             <div className="flex items-center justify-between">
-              <div className='mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2'>
-                <Link href={`/profile/${answer.author._id}`} className="flex flex-1 items-start gap-1 sm:items-center">
-                  <Image
-                    src={answer.author.picture}
-                    width={18}
-                    height={18}
-                    alt="profile"
-                    className="rounded-full object-cover max-sm:mt-0.5"
-                  />
+              <div className="mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
+                <Link
+                  href={`/profile/${answer.author._id}`}
+                  className="flex flex-1 items-start gap-1 sm:items-center"
+                >
+                  {answer.author.avatar?.url ? (
+                    <Image
+                      src={answer.author.avatar.url}
+                      width={18}
+                      height={18}
+                      alt="profile"
+                      className="rounded-full object-cover max-sm:mt-0.5"
+                    />
+                  ) : (
+                    <FaUser className="text-white" />
+                  )}
                   <div className="flex flex-col sm:flex-row sm:items-center">
                     <p className="body-semibold text-dark300_light700">
                       {answer.author.name}
                     </p>
 
                     <p className="small-regular text-light400_light500 ml-0.5 mt-0.5 line-clamp-1">
-                      answered {" "}
-                      {getTimestamp(answer.createdAt)}
+                      answered {getTimestamp(answer.createdAt)}
                     </p>
                   </div>
                 </Link>
                 <div className="flex justify-end">
-                  <Votes 
+                  <Votes
                     type="Answer"
                     itemId={answer._id} // No need to stringify these IDs
-                    userId={userId}       // Directly use the IDs as strings
+                    userId={userId} // Directly use the IDs as strings
                     upvotes={answer.upvotes.length}
                     hasupVoted={answer.upvotes.includes(userId)}
                     downvotes={answer.downvotes.length}

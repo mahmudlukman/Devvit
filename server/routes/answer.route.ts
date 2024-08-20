@@ -20,8 +20,6 @@ answerRouter.post(
 
 answerRouter.get(
   '/answers',
-  // updateAccessToken,
-  isAuthenticated,
   getAnswers
 );
 

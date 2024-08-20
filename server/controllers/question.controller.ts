@@ -76,7 +76,6 @@ export const getQuestions = catchAsyncError(
 interface ICreateQuestion {
   title: string;
   content: string;
-  author: string;
   tags: string[];
 }
 
@@ -84,12 +83,13 @@ interface ICreateQuestion {
 export const createQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, content, author, tags } = req.body as ICreateQuestion;
+      const author = req.user
+      const { title, content, tags } = req.body as ICreateQuestion;
       // Create the question
       const question = await Question.create({
         title,
         content,
-        author: req.user,
+        author: req.user?._id,
       });
 
       const tagDocuments = [];
@@ -151,7 +151,6 @@ export const getQuestionById = catchAsyncError(
 
 interface IVoteQuestion {
   questionId: Schema.Types.ObjectId;
-  userId: Schema.Types.ObjectId;
   hasupVoted: Boolean;
   hasdownVoted: Boolean;
 }
@@ -160,7 +159,8 @@ interface IVoteQuestion {
 export const upvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { questionId, userId, hasupVoted, hasdownVoted } =
+      const userId = req.user?._id
+      const { questionId, hasupVoted, hasdownVoted } =
         req.body as IVoteQuestion;
 
       let updateQuery = {};
@@ -207,7 +207,8 @@ export const upvoteQuestion = catchAsyncError(
 export const downvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { questionId, userId, hasupVoted, hasdownVoted } =
+      const userId = req.user?._id
+      const { questionId, hasupVoted, hasdownVoted } =
         req.body as IVoteQuestion;
 
       let updateQuery = {};

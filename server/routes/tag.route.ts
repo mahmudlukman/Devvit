@@ -6,30 +6,22 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const tagRouter = express.Router();
 
 tagRouter.get(
-  '/top-tags/:id',
-  // updateAccessToken,
-  isAuthenticated,
+  '/top-tags',
   getTopInteractedTags
 );
 
 tagRouter.get(
   '/tags',
-  // updateAccessToken,
-  isAuthenticated,
   getAllTags
 );
 
 tagRouter.get(
-  '/question-by-tag',
-  // updateAccessToken,
-  isAuthenticated,
+  '/question-by-tag/:tagId',
   getQuestionsByTagId
 );
 
 tagRouter.get(
   '/popular-tags',
-  // updateAccessToken,
-  isAuthenticated,
   getTopPopularTags
 );
 

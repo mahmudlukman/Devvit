@@ -8,7 +8,8 @@ import Interaction from '../models/interaction.model';
 export const viewQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { questionId, userId } = req.body;
+      const userId = req.user?._id
+      const { questionId } = req.params;
 
       // Update view count for the question
       await Question.findByIdAndUpdate(questionId, { $inc: { views: 1 } });

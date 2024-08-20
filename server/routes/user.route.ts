@@ -5,7 +5,7 @@ import {
   getLoggedInUser,
   getSavedQuestions,
   getUserAnswers,
-  getUserInfo,
+  // getUserInfo,
   getUserQuestions,
   toggleSaveQuestion,
   updateUserProfile,
@@ -15,14 +15,14 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const userRouter = express.Router();
 
 userRouter.get('/me', isAuthenticated, getLoggedInUser);
-userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
+// userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
   // updateAccessToken,
   isAuthenticated,
   updateUserProfile
 );
-userRouter.get('/users', isAuthenticated, getAllUsers);
+userRouter.get('/users', getAllUsers);
 userRouter.delete(
   '/delete-user/:id',
   // updateAccessToken,
@@ -30,7 +30,7 @@ userRouter.delete(
   deleteUser
 );
 userRouter.post(
-  '/toggle-save-question',
+  '/toggle-save-question/:questionId',
   // updateAccessToken,
   isAuthenticated,
   toggleSaveQuestion
@@ -44,15 +44,11 @@ userRouter.get(
 
 userRouter.get(
   '/user-answers',
-  // updateAccessToken,
-  isAuthenticated,
   getUserAnswers
 );
 
 userRouter.get(
   '/user-questions',
-  // updateAccessToken,
-  isAuthenticated,
   getUserQuestions
 );
 

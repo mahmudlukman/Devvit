@@ -6,7 +6,7 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const interactionRouter = express.Router();
 
 interactionRouter.get(
-  '/view-question',
+  '/view-question/:questionId',
   // updateAccessToken,
   isAuthenticated,
   viewQuestion
