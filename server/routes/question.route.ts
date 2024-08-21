@@ -22,7 +22,7 @@ questionRouter.get(
 
 questionRouter.post(
   '/create-question',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   createQuestion
 );
@@ -33,29 +33,29 @@ questionRouter.get(
 );
 
 questionRouter.put(
-  '/downvote-question',
-  // updateAccessToken,
+  '/downvote-question/:questionId',
+  updateAccessToken,
   isAuthenticated,
   downvoteQuestion
 );
 
 questionRouter.put(
-  '/upvote-question',
-  // updateAccessToken,
+  '/upvote-question/:questionId',
+  updateAccessToken,
   isAuthenticated,
   upvoteQuestion
 );
 
 questionRouter.delete(
   '/delete-question/:questionId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   deleteQuestion
 );
 
 questionRouter.put(
   '/edit-question/:questionId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   editQuestion
 );

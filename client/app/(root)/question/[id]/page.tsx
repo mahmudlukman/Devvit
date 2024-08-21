@@ -16,12 +16,14 @@ import { FaUser } from 'react-icons/fa';
 
 const Page = ({ params }: any) => {
   const { user } = useSelector((state: any) => state.auth);
-  const { data: result, isLoading, isError } = useGetQuestionQuery(params.id);
+  const {
+    data: result,
+    isLoading,
+    isError,
+  } = useGetQuestionQuery({ questionId: params.id });
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !result) return <div>Error loading question</div>;
-
-  console.log(result);
 
   return (
     <>
@@ -40,9 +42,7 @@ const Page = ({ params }: any) => {
                 className="rounded-full object-cover max-sm:mt-0.5 bg-slate-300 border-slate-400"
               />
             ) : (
-              <FaUser
-                className="rounded-full object-cover max-sm:mt-0.5 bg-slate-300 border-slate-400"
-              />
+              <FaUser className="rounded-full object-cover max-sm:mt-0.5 bg-slate-300 border-slate-400" />
             )}
             <p className="paragraph-semibold text-dark300_light700">
               {result.question.author.name}
@@ -52,12 +52,12 @@ const Page = ({ params }: any) => {
             <Votes
               type="Question"
               itemId={result.question._id}
-              userId={user._id} // Use the Redux user ID
+              userId={user._id}
               upvotes={result.question.upvotes.length}
               hasupVoted={result.question.upvotes.includes(user._id)}
               downvotes={result.question.downvotes.length}
               hasdownVoted={result.question.downvotes.includes(user._id)}
-              hasSaved={user?.saved.includes(result.question._id)}
+              hasSaved={user?.saved?.includes(result.question._id)}
             />
           </div>
         </div>

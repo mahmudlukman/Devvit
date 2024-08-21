@@ -13,7 +13,7 @@ const answerRouter = express.Router();
 
 answerRouter.post(
   '/create-answer',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   createAnswer
 );
@@ -25,20 +25,20 @@ answerRouter.get(
 
 answerRouter.put(
   '/upvote-answer',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   upvoteAnswers
 );
 answerRouter.put(
   '/downvote-answer',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   downvoteAnswers
 );
 
 answerRouter.delete(
   '/delete-answer/:answerId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   deleteAnswer
 );

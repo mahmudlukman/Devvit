@@ -83,7 +83,7 @@ interface ICreateQuestion {
 export const createQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const author = req.user
+      const author = req.user;
       const { title, content, tags } = req.body as ICreateQuestion;
       // Create the question
       const question = await Question.create({
@@ -150,7 +150,6 @@ export const getQuestionById = catchAsyncError(
 );
 
 interface IVoteQuestion {
-  questionId: Schema.Types.ObjectId;
   hasupVoted: Boolean;
   hasdownVoted: Boolean;
 }
@@ -159,9 +158,9 @@ interface IVoteQuestion {
 export const upvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?._id
-      const { questionId, hasupVoted, hasdownVoted } =
-        req.body as IVoteQuestion;
+      const userId = req.user?._id;
+      const { questionId } = req.params;
+      const { hasupVoted, hasdownVoted } = req.body as IVoteQuestion;
 
       let updateQuery = {};
 
@@ -207,8 +206,9 @@ export const upvoteQuestion = catchAsyncError(
 export const downvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?._id
-      const { questionId, hasupVoted, hasdownVoted } =
+      const userId = req.user?._id;
+      const { questionId } = req.params;
+      const { hasupVoted, hasdownVoted } =
         req.body as IVoteQuestion;
 
       let updateQuery = {};
@@ -256,10 +256,10 @@ export const deleteQuestion = catchAsyncError(
     try {
       const { questionId } = req.params;
 
-      const question = await Question.findById(questionId)
+      const question = await Question.findById(questionId);
 
-      if(!question){
-        return next(new ErrorHandler("Question not found!", 400));
+      if (!question) {
+        return next(new ErrorHandler('Question not found!', 400));
       }
 
       await Question.deleteOne({ _id: questionId });

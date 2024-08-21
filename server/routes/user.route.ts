@@ -18,26 +18,26 @@ userRouter.get('/me', isAuthenticated, getLoggedInUser);
 // userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   updateUserProfile
 );
 userRouter.get('/users', getAllUsers);
 userRouter.delete(
   '/delete-user/:id',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   deleteUser
 );
 userRouter.post(
   '/toggle-save-question/:questionId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   toggleSaveQuestion
 );
 userRouter.get(
   '/saved-questions',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   getSavedQuestions
 );

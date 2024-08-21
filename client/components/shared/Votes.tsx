@@ -1,14 +1,20 @@
-"use client"
+'use client';
 
-import { 
-  useUpvoteQuestionMutation, 
-  useDownvoteQuestionMutation 
+import {
+  useUpvoteAnswerMutation,
+  useDownvoteAnswerMutation,
+} from '@/redux/features/answer/answerApi';
+import {
+  useUpvoteQuestionMutation,
+  useDownvoteQuestionMutation,
 } from '@/redux/features/question/questionApi';
-import { formatAndDivideNumber } from "@/lib/utils";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useSelector } from 'react-redux';
+import { useToggleSavedQuestionMutation } from '@/redux/features/user/userApi';
+import { useGetViewQuestionQuery } from '@/redux/features/interaction/interactionApi';
+import { formatAndDivideNumber } from '@/lib/utils';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from '../ui/use-toast';
 
 interface Props {
   type: string;
@@ -25,65 +31,134 @@ const Votes = ({
   type,
   itemId,
   userId,
-  upvotes,
-  hasupVoted,
-  downvotes,
-  hasdownVoted,
-  hasSaved,
+  upvotes: initialUpvotes,
+  hasupVoted: initialHasUpvoted,
+  downvotes: initialDownvotes,
+  hasdownVoted: initialHasDownvoted,
+  hasSaved: initialHasSaved,
 }: Props) => {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [toggleSavedQuestion] = useToggleSavedQuestionMutation();
   const [upvoteQuestion] = useUpvoteQuestionMutation();
   const [downvoteQuestion] = useDownvoteQuestionMutation();
-  const { user } = useSelector((state: any) => state.auth);
+  const [upvoteAnswer] = useUpvoteAnswerMutation();
+  const [downvoteAnswer] = useDownvoteAnswerMutation();
+
+  // Local state to handle optimistic updates
+  const [upvotes, setUpvotes] = useState(initialUpvotes);
+  const [hasUpvoted, setHasUpvoted] = useState(initialHasUpvoted);
+  const [downvotes, setDownvotes] = useState(initialDownvotes);
+  const [hasDownvoted, setHasDownvoted] = useState(initialHasDownvoted);
+  const [hasSaved, setHasSaved] = useState(initialHasSaved);
+
+  const { data: viewData, isSuccess } = useGetViewQuestionQuery(
+    { questionId: itemId },
+    { skip: type !== 'Question' }
+  );
+
+  useEffect(() => {
+    if (type === 'Question' && isSuccess) {
+      console.log('Question view counted:', viewData);
+    }
+  }, [isSuccess, viewData, type]);
+
+  const handleSave = async () => {
+    try {
+      setHasSaved(!hasSaved); // Optimistic update
+
+      await toggleSavedQuestion(itemId).unwrap();
+      toast({
+        title: `Question ${
+          !hasSaved ? 'Saved in' : 'Removed from'
+        } your collection`,
+        variant: !hasSaved ? 'default' : 'destructive',
+      });
+    } catch (error) {
+      setHasSaved(hasSaved); // Revert if the request fails
+      toast({
+        title: 'Error',
+        description: 'Failed to save question',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleVote = async (action: string) => {
-    if (!user) {
-      return;
+    if (!userId) {
+      return toast({
+        title: 'Please log in',
+        description: 'You must be logged in to perform this action',
+      });
     }
 
-    const voteData = {
-      questionId: itemId,
-      userId: user._id,
-      hasupVoted,
-      hasdownVoted,
-      path: pathname,
-    };
+    try {
+      if (action === 'upvote') {
+        // If the user is currently downvoted, remove the downvote
+        if (hasDownvoted) {
+          setHasDownvoted(false);
+          setDownvotes(downvotes - 1);
+        }
 
-    if (action === 'upvote') {
-      if (type === 'Question') {
-        await upvoteQuestion(voteData);
+        setHasUpvoted(!hasUpvoted);
+        setUpvotes(hasUpvoted ? upvotes - 1 : upvotes + 1); // Optimistic update
+
+        if (type === 'Question') {
+          await upvoteQuestion({ questionId: itemId }).unwrap();
+        } else if (type === 'Answer') {
+          await upvoteAnswer({ answerId: itemId }).unwrap();
+        }
+        toast({
+          title: `Upvote ${hasUpvoted ? 'Removed' : 'Successful'}`,
+          variant: 'default',
+        });
+      } else if (action === 'downvote') {
+        // If the user is currently upvoted, remove the upvote
+        if (hasUpvoted) {
+          setHasUpvoted(false);
+          setUpvotes(upvotes - 1);
+        }
+
+        setHasDownvoted(!hasDownvoted);
+        setDownvotes(hasDownvoted ? downvotes - 1 : downvotes + 1); // Optimistic update
+
+        if (type === 'Question') {
+          await downvoteQuestion({ questionId: itemId }).unwrap();
+        } else if (type === 'Answer') {
+          await downvoteAnswer({ answerId: itemId }).unwrap();
+        }
+        toast({
+          title: `Downvote ${hasDownvoted ? 'Removed' : 'Successful'}`,
+          variant: 'default',
+        });
       }
-      // Todo: handle Answer votes if needed
-      return;
-    }
-
-    if (action === 'downvote') {
-      if (type === 'Question') {
-        await downvoteQuestion(voteData);
+    } catch (error) {
+      // Revert the optimistic update if the request fails
+      if (action === 'upvote') {
+        setHasUpvoted(hasUpvoted);
+        setUpvotes(upvotes);
+      } else if (action === 'downvote') {
+        setHasDownvoted(hasDownvoted);
+        setDownvotes(downvotes);
       }
-      // Todo: handle Answer votes if needed
+      toast({
+        title: 'Error',
+        description: `Failed to ${action} the ${type.toLowerCase()}`,
+        variant: 'destructive',
+      });
     }
-  }
-
-  // Optionally, you can handle side-effects like saving the question or viewing it, but this is just an example for votes
-  useEffect(() => {
-    // Assuming you want to track views using a different action
-    // viewQuestion({
-    //   questionId: JSON.parse(itemId),
-    //   userId: userId ? JSON.parse(userId) : undefined,
-    // });
-  }, [itemId, userId, pathname, router]);
+  };
 
   return (
     <div className="flex gap-5">
       <div className="flex-center gap-2.5">
         <div className="flex-center gap-1.5">
-          <Image 
-            src={hasupVoted
-              ? '/assets/icons/upvoted.svg'
-              : '/assets/icons/upvote.svg'
+          <Image
+            src={
+              hasUpvoted
+                ? '/assets/icons/upvoted.svg'
+                : '/assets/icons/upvote.svg'
             }
             width={18}
             height={18}
@@ -91,19 +166,18 @@ const Votes = ({
             className="cursor-pointer"
             onClick={() => handleVote('upvote')}
           />
-
           <div className="flex-center background-light700_dark400 min-w-[18px] rounded-sm p-1">
             <p className="subtle-medium text-dark400_light900">
               {formatAndDivideNumber(upvotes)}
             </p>
           </div>
         </div>
-
         <div className="flex-center gap-1.5">
-          <Image 
-            src={hasdownVoted
-              ? '/assets/icons/downvoted.svg'
-              : '/assets/icons/downvote.svg'
+          <Image
+            src={
+              hasDownvoted
+                ? '/assets/icons/downvoted.svg'
+                : '/assets/icons/downvote.svg'
             }
             width={18}
             height={18}
@@ -111,7 +185,6 @@ const Votes = ({
             className="cursor-pointer"
             onClick={() => handleVote('downvote')}
           />
-
           <div className="flex-center background-light700_dark400 min-w-[18px] rounded-sm p-1">
             <p className="subtle-medium text-dark400_light900">
               {formatAndDivideNumber(downvotes)}
@@ -119,24 +192,22 @@ const Votes = ({
           </div>
         </div>
       </div>
-
       {type === 'Question' && (
-        <Image 
-          src={hasSaved
-            ? '/assets/icons/star-filled.svg'
-            : '/assets/icons/star-red.svg'
+        <Image
+          src={
+            hasSaved
+              ? '/assets/icons/star-filled.svg'
+              : '/assets/icons/star-red.svg'
           }
           width={18}
           height={18}
           alt="star"
           className="cursor-pointer"
-          onClick={() => {
-            // Implement saving functionality using a Redux mutation if necessary
-          }}
+          onClick={handleSave}
         />
       )}
     </div>
-  )
-}
+  );
+};
 
 export default Votes;

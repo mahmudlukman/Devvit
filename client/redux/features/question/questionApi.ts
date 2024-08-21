@@ -18,23 +18,25 @@ export const questionApi = apiSlice.injectEndpoints({
       }),
     }),
     getQuestion: builder.query({
-      query: (id) => ({
-        url: `question/${id}`,
+      query: ({questionId}) => ({
+        url: `question/${questionId}`,
         method: 'GET',
         credentials: 'include' as const,
       }),
     }),
     upvoteQuestion: builder.mutation({
-      query: (voteData) => ({
-        url: 'upvote-question',
+      query: ({questionId, data}) => ({
+        url: `upvote-question/${questionId}`,
         method: 'PUT',
+        body: data,
         credentials: 'include' as const,
       }),
     }),
     downvoteQuestion: builder.mutation({
-      query: () => ({
-        url: 'downvote-question',
+      query: ({questionId, data}) => ({
+        url: `downvote-question/${questionId}`,
         method: 'PUT',
+        body: data,
         credentials: 'include' as const,
       }),
     }),
@@ -78,5 +80,5 @@ export const {
   useDeleteQuestionMutation,
   useEditQuestionMutation,
   useGetHotQuestionQuery,
-  useGetRecommendedQuestionQuery
+  useGetRecommendedQuestionQuery,
 } = questionApi;
