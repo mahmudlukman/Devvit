@@ -14,7 +14,7 @@ import Link from 'next/link';
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
 
-const Page = ({ params }: any) => {
+const Page = ({ params, searchParams  }: any) => {
   const { user } = useSelector((state: any) => state.auth);
   const {
     data: result,
@@ -107,12 +107,17 @@ const Page = ({ params }: any) => {
         questionId={result.question._id}
         userId={user._id}
         totalAnswers={result.question.answers.length}
+        page={searchParams?.page}
+        filter={searchParams?.filter}
       />
 
       <Answer
+        // question={result.question.content}
+        // questionId={result.question._id}
+        // authorId={user._id}
         question={result.question.content}
-        questionId={result.question._id}
-        authorId={user._id}
+        questionId={JSON.stringify(result.question._id)}
+        authorId={JSON.stringify(user._id)}
       />
     </>
   );
