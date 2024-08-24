@@ -6,18 +6,22 @@ import NoResult from '@/components/shared/NoResult';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { QuestionFilters } from '@/constants/filters';
 import { useGetSavedQuestionsQuery } from '@/redux/features/user/userApi';
+import { SearchParamsProps } from '@/types';
+import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-// import { getSavedQuestions } from "@/lib/actions/user.action";
 
-export default function Home() {
+export default function Home({ searchParams }: SearchParamsProps) {
   const { user } = useSelector((state: any) => state.auth);
   const [questions, setQuestions] = useState([]);
 
-  if (!user) return null;
+  if (!user) redirect('/login');
 
   const { data, isLoading, isError } = useGetSavedQuestionsQuery({
     userId: user._id,
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
   });
 
   useEffect(() => {
@@ -50,8 +54,8 @@ export default function Home() {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {questions.length > 0 ? (
-          questions.map((question: any) => (
+        {data.questions.length > 0 ? (
+          data.questions.map((question: any) => (
             <QuestionCard
               key={question._id}
               _id={question._id}

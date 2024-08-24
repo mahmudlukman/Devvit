@@ -37,8 +37,6 @@ const Votes = ({
   hasdownVoted: initialHasDownvoted,
   hasSaved: initialHasSaved,
 }: Props) => {
-  const pathname = usePathname();
-  const router = useRouter();
 
   const [toggleSavedQuestion] = useToggleSavedQuestionMutation();
   const [upvoteQuestion] = useUpvoteQuestionMutation();

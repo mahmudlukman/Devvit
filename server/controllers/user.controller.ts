@@ -362,7 +362,7 @@ export const deleteUser = catchAsyncError(
 export const toggleSaveQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?._id
+      const userId = req.user?._id;
       const { questionId } = req.params;
 
       const user = await UserModel.findById(userId);
@@ -397,7 +397,7 @@ export const toggleSaveQuestion = catchAsyncError(
 );
 
 interface IGetSavedQuestions {
-  userId?: Schema.Types.ObjectId;
+  // userId?: Schema.Types.ObjectId;
   page?: number;
   pageSize?: number;
   filter?: string;
@@ -408,8 +408,8 @@ interface IGetSavedQuestions {
 export const getSavedQuestions = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { userId } = req.params;
       const {
-        userId,
         page = 1,
         pageSize = 20,
         filter,
