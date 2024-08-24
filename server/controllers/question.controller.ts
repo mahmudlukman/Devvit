@@ -149,10 +149,107 @@ export const getQuestionById = catchAsyncError(
   }
 );
 
-interface IVoteQuestion {
-  hasupVoted: Boolean;
-  hasdownVoted: Boolean;
-}
+// interface IVoteQuestion {
+//   hasupVoted: Boolean;
+//   hasdownVoted: Boolean;
+// }
+
+// // upvote questions
+// export const upvoteQuestion = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const userId = req.user?._id;
+//       const { questionId } = req.params;
+//       const { hasupVoted, hasdownVoted } = req.body as IVoteQuestion;
+
+//       let updateQuery = {};
+
+//       if (hasupVoted) {
+//         updateQuery = { $pull: { upvotes: userId } };
+//       } else if (hasdownVoted) {
+//         updateQuery = {
+//           $pull: { downvotes: userId },
+//           $push: { upvotes: userId },
+//         };
+//       } else {
+//         updateQuery = { $addToSet: { upvotes: userId } };
+//       }
+
+//       const question = await Question.findByIdAndUpdate(
+//         questionId,
+//         updateQuery,
+//         { new: true }
+//       );
+
+//       if (!question) {
+//         return next(new ErrorHandler('Question not found', 400));
+//       }
+
+//       // Increment author's reputation by +1/-1 for upvoting/revoking an upvote to the question
+//       await UserModel.findByIdAndUpdate(userId, {
+//         $inc: { reputation: hasupVoted ? -1 : 1 },
+//       });
+
+//       // Increment author's reputation by +10/-10 for recieving an upvote/downvote to the question
+//       await UserModel.findByIdAndUpdate(question.author, {
+//         $inc: { reputation: hasupVoted ? -10 : 10 },
+//       });
+
+//       res.status(200).json({ success: true, question });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
+
+// // downvote questions
+// export const downvoteQuestion = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const userId = req.user?._id;
+//       const { questionId } = req.params;
+//       const { hasupVoted, hasdownVoted } =
+//         req.body as IVoteQuestion;
+
+//       let updateQuery = {};
+
+//       if (hasdownVoted) {
+//         updateQuery = { $pull: { downvote: userId } };
+//       } else if (hasupVoted) {
+//         updateQuery = {
+//           $pull: { upvotes: userId },
+//           $push: { downvotes: userId },
+//         };
+//       } else {
+//         updateQuery = { $addToSet: { downvotes: userId } };
+//       }
+
+//       const question = await Question.findByIdAndUpdate(
+//         questionId,
+//         updateQuery,
+//         { new: true }
+//       );
+
+//       if (!question) {
+//         return next(new ErrorHandler('Question not found', 400));
+//       }
+
+//       // Increment author's reputation
+//       await UserModel.findByIdAndUpdate(userId, {
+//         $inc: { reputation: hasdownVoted ? -2 : 2 },
+//       });
+
+//       await UserModel.findByIdAndUpdate(question.author, {
+//         $inc: { reputation: hasdownVoted ? -10 : 10 },
+//       });
+
+//       res.status(200).json({ success: true, question });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
+
 
 // upvote questions
 export const upvoteQuestion = catchAsyncError(
@@ -160,39 +257,49 @@ export const upvoteQuestion = catchAsyncError(
     try {
       const userId = req.user?._id;
       const { questionId } = req.params;
-      const { hasupVoted, hasdownVoted } = req.body as IVoteQuestion;
 
-      let updateQuery = {};
-
-      if (hasupVoted) {
-        updateQuery = { $pull: { upvotes: userId } };
-      } else if (hasdownVoted) {
-        updateQuery = {
-          $pull: { downvotes: userId },
-          $push: { upvotes: userId },
-        };
-      } else {
-        updateQuery = { $addToSet: { upvotes: userId } };
-      }
-
-      const question = await Question.findByIdAndUpdate(
-        questionId,
-        updateQuery,
-        { new: true }
-      );
+      const question = await Question.findById(questionId);
 
       if (!question) {
         return next(new ErrorHandler('Question not found', 400));
       }
 
-      // Increment author's reputation by +1/-1 for upvoting/revoking an upvote to the question
+      const userIdString = userId.toString();
+      const isUpvoted = question.upvotes.map(id => id.toString()).includes(userIdString);
+      const isDownvoted = question.downvotes.map(id => id.toString()).includes(userIdString);
+
+      let reputationChange;
+      let authorReputationChange;
+
+      if (isUpvoted) {
+        // Remove upvote
+        question.upvotes = question.upvotes.filter(id => id.toString() !== userIdString);
+        reputationChange = -1;
+        authorReputationChange = -10;
+      } else {
+        // Add upvote
+        question.upvotes.push(userId);
+        reputationChange = 1;
+        authorReputationChange = 10;
+        
+        // Remove downvote if exists
+        if (isDownvoted) {
+          question.downvotes = question.downvotes.filter(id => id.toString() !== userIdString);
+          reputationChange += 2;
+          authorReputationChange += 10;
+        }
+      }
+
+      await question.save();
+
+      // Update user's reputation
       await UserModel.findByIdAndUpdate(userId, {
-        $inc: { reputation: hasupVoted ? -1 : 1 },
+        $inc: { reputation: reputationChange },
       });
 
-      // Increment author's reputation by +10/-10 for recieving an upvote/downvote to the question
+      // Update question author's reputation
       await UserModel.findByIdAndUpdate(question.author, {
-        $inc: { reputation: hasupVoted ? -10 : 10 },
+        $inc: { reputation: authorReputationChange },
       });
 
       res.status(200).json({ success: true, question });
@@ -202,45 +309,55 @@ export const upvoteQuestion = catchAsyncError(
   }
 );
 
-// upvote questions
+// downvote questions
 export const downvoteQuestion = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       const { questionId } = req.params;
-      const { hasupVoted, hasdownVoted } =
-        req.body as IVoteQuestion;
 
-      let updateQuery = {};
-
-      if (hasdownVoted) {
-        updateQuery = { $pull: { downvote: userId } };
-      } else if (hasupVoted) {
-        updateQuery = {
-          $pull: { upvotes: userId },
-          $push: { downvotes: userId },
-        };
-      } else {
-        updateQuery = { $addToSet: { downvotes: userId } };
-      }
-
-      const question = await Question.findByIdAndUpdate(
-        questionId,
-        updateQuery,
-        { new: true }
-      );
+      const question = await Question.findById(questionId);
 
       if (!question) {
         return next(new ErrorHandler('Question not found', 400));
       }
 
-      // Increment author's reputation
+      const userIdString = userId.toString();
+      const isUpvoted = question.upvotes.map(id => id.toString()).includes(userIdString);
+      const isDownvoted = question.downvotes.map(id => id.toString()).includes(userIdString);
+
+      let reputationChange = 0;
+      let authorReputationChange = 0;
+
+      if (isDownvoted) {
+        // Remove downvote
+        question.downvotes = question.downvotes.filter(id => id.toString() !== userIdString);
+        reputationChange = 2;
+        authorReputationChange = 10;
+      } else {
+        // Add downvote
+        question.downvotes.push(userId);
+        reputationChange = -2;
+        authorReputationChange = -10;
+
+        // Remove upvote if exists
+        if (isUpvoted) {
+          question.upvotes = question.upvotes.filter(id => id.toString() !== userIdString);
+          reputationChange -= 1;
+          authorReputationChange -= 10;
+        }
+      }
+
+      await question.save();
+
+      // Update user's reputation
       await UserModel.findByIdAndUpdate(userId, {
-        $inc: { reputation: hasdownVoted ? -2 : 2 },
+        $inc: { reputation: reputationChange },
       });
 
+      // Update question author's reputation
       await UserModel.findByIdAndUpdate(question.author, {
-        $inc: { reputation: hasdownVoted ? -10 : 10 },
+        $inc: { reputation: authorReputationChange },
       });
 
       res.status(200).json({ success: true, question });

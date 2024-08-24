@@ -53,10 +53,12 @@ const Votes = ({
   const [hasDownvoted, setHasDownvoted] = useState(initialHasDownvoted);
   const [hasSaved, setHasSaved] = useState(initialHasSaved);
 
+  // Fetch the latest status on component load to ensure accuracy
   const { data: viewData, isSuccess } = useGetViewQuestionQuery(
     { questionId: itemId },
     { skip: type !== 'Question' }
   );
+  
 
   useEffect(() => {
     if (type === 'Question' && isSuccess) {
@@ -95,53 +97,64 @@ const Votes = ({
 
     try {
       if (action === 'upvote') {
-        // If the user is currently downvoted, remove the downvote
-        if (hasDownvoted) {
-          setHasDownvoted(false);
-          setDownvotes(downvotes - 1);
+        if (hasUpvoted) {
+          // Remove upvote
+          setHasUpvoted(false);
+          setUpvotes(upvotes - 1);
+        } else {
+          // Add upvote
+          setHasUpvoted(true);
+          setUpvotes(upvotes + 1);
+          // Remove downvote if exists
+          if (hasDownvoted) {
+            setHasDownvoted(false);
+            setDownvotes(downvotes - 1);
+          }
         }
-
-        setHasUpvoted(!hasUpvoted);
-        setUpvotes(hasUpvoted ? upvotes - 1 : upvotes + 1); // Optimistic update
 
         if (type === 'Question') {
           await upvoteQuestion({ questionId: itemId }).unwrap();
         } else if (type === 'Answer') {
           await upvoteAnswer({ answerId: itemId }).unwrap();
         }
+
         toast({
-          title: `Upvote ${hasUpvoted ? 'Removed' : 'Successful'}`,
+          title: `Upvote ${hasUpvoted ? 'Removed' : 'Added'}`,
           variant: 'default',
         });
       } else if (action === 'downvote') {
-        // If the user is currently upvoted, remove the upvote
-        if (hasUpvoted) {
-          setHasUpvoted(false);
-          setUpvotes(upvotes - 1);
+        if (hasDownvoted) {
+          // Remove downvote
+          setHasDownvoted(false);
+          setDownvotes(downvotes - 1);
+        } else {
+          // Add downvote
+          setHasDownvoted(true);
+          setDownvotes(downvotes + 1);
+          // Remove upvote if exists
+          if (hasUpvoted) {
+            setHasUpvoted(false);
+            setUpvotes(upvotes - 1);
+          }
         }
-
-        setHasDownvoted(!hasDownvoted);
-        setDownvotes(hasDownvoted ? downvotes - 1 : downvotes + 1); // Optimistic update
 
         if (type === 'Question') {
           await downvoteQuestion({ questionId: itemId }).unwrap();
         } else if (type === 'Answer') {
           await downvoteAnswer({ answerId: itemId }).unwrap();
         }
+
         toast({
-          title: `Downvote ${hasDownvoted ? 'Removed' : 'Successful'}`,
+          title: `Downvote ${hasDownvoted ? 'Removed' : 'Added'}`,
           variant: 'default',
         });
       }
     } catch (error) {
       // Revert the optimistic update if the request fails
-      if (action === 'upvote') {
-        setHasUpvoted(hasUpvoted);
-        setUpvotes(upvotes);
-      } else if (action === 'downvote') {
-        setHasDownvoted(hasDownvoted);
-        setDownvotes(downvotes);
-      }
+      setHasUpvoted(initialHasUpvoted);
+      setHasDownvoted(initialHasDownvoted);
+      setUpvotes(initialUpvotes);
+      setDownvotes(initialDownvotes);
       toast({
         title: 'Error',
         description: `Failed to ${action} the ${type.toLowerCase()}`,
