@@ -53,12 +53,10 @@ const Votes = ({
   const [hasDownvoted, setHasDownvoted] = useState(initialHasDownvoted);
   const [hasSaved, setHasSaved] = useState(initialHasSaved);
 
-  // Fetch the latest status on component load to ensure accuracy
   const { data: viewData, isSuccess } = useGetViewQuestionQuery(
     { questionId: itemId },
     { skip: type !== 'Question' }
   );
-  
 
   useEffect(() => {
     if (type === 'Question' && isSuccess) {

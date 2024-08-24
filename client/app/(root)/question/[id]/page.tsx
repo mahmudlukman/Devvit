@@ -112,9 +112,6 @@ const Page = ({ params, searchParams  }: any) => {
       />
 
       <Answer
-        // question={result.question.content}
-        // questionId={result.question._id}
-        // authorId={user._id}
         question={result.question.content}
         questionId={JSON.stringify(result.question._id)}
         authorId={JSON.stringify(user._id)}
