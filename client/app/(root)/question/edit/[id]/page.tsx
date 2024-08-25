@@ -10,8 +10,6 @@ const Page = ({ params }: ParamsProps) => {
   const { user } = useSelector((state: any) => state.auth);
   const { data: result, isLoading, isError } = useGetQuestionQuery({questionId: params.id});
 
-  console.log(result)
-
   if (!user) redirect('/login');
 
   return (
