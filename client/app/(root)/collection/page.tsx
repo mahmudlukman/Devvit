@@ -54,7 +54,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {data.questions.length > 0 ? (
+        {data.questions && data.questions.length > 0 ? (
           data.questions.map((question: any) => (
             <QuestionCard
               key={question._id}
