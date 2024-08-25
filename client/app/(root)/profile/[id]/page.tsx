@@ -18,11 +18,11 @@ import { FaUser } from 'react-icons/fa';
 
 const Page = ({ params, searchParams }: URLProps) => {
   const { user } = useSelector((state: any) => state.auth);
-  // const { data: userInfo, isLoading } = useGetUserInfoQuery({ userId: params.id });
+  const { data: userInfo, isLoading } = useGetUserInfoQuery({ userId: params.id });
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     return <div>User not found</div>;
@@ -32,12 +32,12 @@ const Page = ({ params, searchParams }: URLProps) => {
     <>
       <div className="flex flex-col-reverse items-start justify-between sm:flex-row">
         <div className="flex flex-col items-start gap-4 lg:flex-row">
-          {user.avatar?.url ? (
+          {userInfo?.user.avatar ? (
             <Image
-              src={user.avatar.url}
-              width={18}
-              height={18}
-              alt="profile"
+              src={userInfo?.user.avatar.url}
+              width={140}
+              height={140}
+              alt="profile picture"
               className="rounded-full object-cover max-sm:mt-0.5"
             />
           ) : (
@@ -45,43 +45,43 @@ const Page = ({ params, searchParams }: URLProps) => {
           )}
 
           <div className="mt-3">
-            <h2 className="h2-bold text-dark100_light900">{user.name}</h2>
+            <h2 className="h2-bold text-dark100_light900">{userInfo.user.name}</h2>
             <p className="paragraph-regular text-dark200_light800">
-              @{user.username}
+              @{userInfo.user.username}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
-              {user.portfolioWebsite && (
+              {userInfo.user.portfolioWebsite && (
                 <ProfileLink
                   imgUrl="/assets/icons/link.svg"
-                  href={user.portfolioWebsite}
+                  href={userInfo.user.portfolioWebsite}
                   title="Portfolio"
                 />
               )}
 
-              {user.location && (
+              {userInfo.user.location && (
                 <ProfileLink
                   imgUrl="/assets/icons/location.svg"
-                  title={user.location}
+                  title={userInfo.user.location}
                 />
               )}
 
               <ProfileLink
                 imgUrl="/assets/icons/calendar.svg"
-                title={getJoinedDate(user.joinedAt)}
+                title={getJoinedDate(userInfo.user.joinedAt)}
               />
             </div>
 
-            {user.bio && (
+            {userInfo.user.bio && (
               <p className="paragraph-regular text-dark400_light800 mt-8">
-                {user.bio}
+                {userInfo.user.bio}
               </p>
             )}
           </div>
         </div>
 
         <div className="flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3">
-          {user === user._id && (
+          {user._id === userInfo.user._id && (
             <Link href="/profile/edit">
               <Button className="paragraph-medium btn-secondary text-dark300_light900 min-h-[46px] min-w-[175px] px-4 py-3">
                 Edit Profile
@@ -92,10 +92,10 @@ const Page = ({ params, searchParams }: URLProps) => {
       </div>
 
       <Stats
-        reputation={user.reputation}
-        totalQuestions={user.totalQuestions}
-        totalAnswers={user.totalAnswers}
-        badges={user.badgeCounts}
+        reputation={userInfo.reputation}
+        totalQuestions={userInfo.totalQuestions}
+        totalAnswers={userInfo.totalAnswers}
+        badges={userInfo.badgeCounts}
       />
 
       <div className="mt-10 flex gap-10">

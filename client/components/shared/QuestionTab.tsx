@@ -1,3 +1,5 @@
+"use client"
+
 import { useGetUserQuestionsQuery } from '@/redux/features/user/userApi';
 import { SearchParamsProps } from '@/types';
 import React from 'react';
@@ -8,11 +10,23 @@ interface Props extends SearchParamsProps {
   userId: string;
 }
 
-const QuestionTab = async ({ searchParams, userId }: Props) => {
-  const { data: result } = useGetUserQuestionsQuery({
+const QuestionTab = ({ searchParams, userId }: Props) => {
+  const { data: result, isLoading, isError } = useGetUserQuestionsQuery({
     userId,
     page: searchParams.page ? +searchParams.page : 1,
   });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading questions</div>;
+  }
+
+  if (!result || !result.questions) {
+    return <div>No questions found</div>;
+  }
 
   return (
     <>

@@ -5,7 +5,7 @@ import {
   getLoggedInUser,
   getSavedQuestions,
   getUserAnswers,
-  // getUserInfo,
+  getUserInfo,
   getUserQuestions,
   toggleSaveQuestion,
   updateUserProfile,
@@ -15,7 +15,7 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const userRouter = express.Router();
 
 userRouter.get('/me', isAuthenticated, getLoggedInUser);
-// userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
+userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
   // updateAccessToken,
