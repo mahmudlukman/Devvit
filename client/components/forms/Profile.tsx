@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { Textarea } from '../ui/textarea';
 import { useState } from 'react';
 import { ProfileSchema } from '@/lib/validations';
-import { usePathname, useRouter } from 'next/navigation';
+import { redirect, usePathname, useRouter } from 'next/navigation';
 import { useUpdateUserProfileMutation } from '@/redux/features/user/userApi';
 
 interface Props {
@@ -56,6 +56,7 @@ const Profile = ({ user }: Props) => {
         path: pathname,
       });
 
+      // redirect('/profile');
       router.back();
     } catch (error) {
       console.log(error);
