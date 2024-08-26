@@ -340,3 +340,26 @@ export const updateAccessToken = catchAsyncError(
     }
   }
 );
+
+// export const refreshTokenController = catchAsyncError (async(req: Request, res: Response)) => {
+//   res.status(200).json({
+//     status: "success",
+//     accessToken: req.cookies.accessToken,
+//     user: req.user
+//   });
+// };
+
+export const refreshToken = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.status(200).json({
+        status: "success",
+        message: "Tokens Refreshed Successfully",
+        // accessToken: req.cookies.accessToken,
+        // user: req.user
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

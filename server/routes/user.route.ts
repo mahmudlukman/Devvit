@@ -18,7 +18,7 @@ userRouter.get('/me', isAuthenticated, getLoggedInUser);
 userRouter.get('/user-info/:userId', isAuthenticated, getUserInfo);
 userRouter.put(
   '/update-user-profile',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   updateUserProfile
 );
@@ -31,13 +31,13 @@ userRouter.delete(
 );
 userRouter.post(
   '/toggle-save-question/:questionId',
-  // updateAccessToken,
   isAuthenticated,
+  updateAccessToken,
   toggleSaveQuestion
 );
 userRouter.get(
   '/saved-questions/:userId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   getSavedQuestions
 );
