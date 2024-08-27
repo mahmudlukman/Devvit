@@ -18,7 +18,9 @@ import { FaUser } from 'react-icons/fa';
 
 const Page = ({ params, searchParams }: URLProps) => {
   const { user } = useSelector((state: any) => state.auth);
-  const { data: userInfo, isLoading } = useGetUserInfoQuery({ userId: params.id });
+  const { data: userInfo, isLoading } = useGetUserInfoQuery({
+    userId: params.id,
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -45,7 +47,9 @@ const Page = ({ params, searchParams }: URLProps) => {
           )}
 
           <div className="mt-3">
-            <h2 className="h2-bold text-dark100_light900">{userInfo.user.name}</h2>
+            <h2 className="h2-bold text-dark100_light900">
+              {userInfo.user.name}
+            </h2>
             <p className="paragraph-regular text-dark200_light800">
               @{userInfo.user.username}
             </p>
@@ -112,10 +116,14 @@ const Page = ({ params, searchParams }: URLProps) => {
             value="top-posts"
             className="mt-5 flex w-full flex-col gap-6"
           >
-            <QuestionTab searchParams={searchParams} userId={user._id} />
+            <>
+              <QuestionTab searchParams={searchParams} userId={user._id} />
+            </>
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
-            <AnswersTab searchParams={searchParams} userId={user._id} />
+            <>
+              <AnswersTab searchParams={searchParams} userId={user._id} />
+            </>
           </TabsContent>
         </Tabs>
       </div>

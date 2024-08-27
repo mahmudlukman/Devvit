@@ -16,7 +16,7 @@ const Page = ({ params }: ParamsProps) => {
       
       <div className="mt-9">
         <Profile 
-          user={JSON.stringify(user)}
+          user={user}
         />
       </div>
     </>

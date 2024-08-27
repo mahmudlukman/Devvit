@@ -19,25 +19,35 @@ import { ProfileSchema } from '@/lib/validations';
 import { redirect, usePathname, useRouter } from 'next/navigation';
 import { useUpdateUserProfileMutation } from '@/redux/features/user/userApi';
 
+interface User {
+  name: string;
+  username: string;
+  bio: string;
+  avatar?: string; 
+  portfolioWebsite: string;
+  location: string;
+}
+
 interface Props {
-  user: string;
+  user: User;
 }
 
 const Profile = ({ user }: Props) => {
-  const parsedUser = JSON.parse(user);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const [updateUserProfile] = useUpdateUserProfileMutation();
+  const [avatarPreview, setAvatarPreview] = useState(user.avatar || '');
 
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: {
-      name: parsedUser.name || '',
-      username: parsedUser.username || '',
-      portfolioWebsite: parsedUser.portfolioWebsite || '',
-      location: parsedUser.location || '',
-      bio: parsedUser.bio || '',
+      name: user.name || '',
+      username: user.username || '',
+      portfolioWebsite: user.portfolioWebsite || '',
+      location: user.location || '',
+      bio: user.bio || '',
+      avatar: user.avatar || '',
     },
   });
 
@@ -52,11 +62,11 @@ const Profile = ({ user }: Props) => {
           portfolioWebsite: values.portfolioWebsite,
           location: values.location,
           bio: values.bio,
+          avatar: values.avatar,
         },
         path: pathname,
       });
 
-      // redirect('/profile');
       router.back();
     } catch (error) {
       console.log(error);
@@ -64,6 +74,20 @@ const Profile = ({ user }: Props) => {
       setIsSubmitting(false);
     }
   }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        form.setValue('avatar', result); // Set avatar as base64 string
+        setAvatarPreview(result); // Update preview with base64 string
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -73,59 +97,89 @@ const Profile = ({ user }: Props) => {
       >
         <FormField
           control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem className="space-y-3.5">
+              <FormLabel className="paragraph-semibold text-dark400_light800">
+                Avatar
+              </FormLabel>
+              <FormControl>
+                <>
+                  <input
+                    type="file"
+                    name="avatar"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                  />
+                  <FormMessage />
+                </>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem className="space-y-3.5">
               <FormLabel className="paragraph-semibold text-dark400_light800">
-                Name <span className="text-primary-500">*</span>
+                Name
               </FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Your name"
-                  className="no-focus paragraph-regular light-border-2 background-light800_dark300 text-dark300_light700 min-h-[56px] border"
-                  {...field}
-                />
+                <>
+                  <Input
+                    placeholder="Name"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    {...field}
+                  />
+                  <FormMessage />
+                </>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem className="space-y-3.5">
               <FormLabel className="paragraph-semibold text-dark400_light800">
-                Username <span className="text-primary-500">*</span>
+                Username
               </FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Your username"
-                  className="no-focus paragraph-regular light-border-2 background-light800_dark300 text-dark300_light700 min-h-[56px] border"
-                  {...field}
-                />
+                <>
+                  <Input
+                    placeholder="Username"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    {...field}
+                  />
+                  <FormMessage />
+                </>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="portfolioWebsite"
           render={({ field }) => (
             <FormItem className="space-y-3.5">
               <FormLabel className="paragraph-semibold text-dark400_light800">
-                Portfolio Link
+                Portfolio Website
               </FormLabel>
               <FormControl>
-                <Input
-                  type="url"
-                  placeholder="Your portfolio URL"
-                  className="no-focus paragraph-regular light-border-2 background-light800_dark300 text-dark300_light700 min-h-[56px] border"
-                  {...field}
-                />
+                <>
+                  <Input
+                    placeholder="Portfolio Website"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    {...field}
+                  />
+                  <FormMessage />
+                </>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -139,13 +193,15 @@ const Profile = ({ user }: Props) => {
                 Location
               </FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Where are you from?"
-                  className="no-focus paragraph-regular light-border-2 background-light800_dark300 text-dark300_light700 min-h-[56px] border"
-                  {...field}
-                />
+                <>
+                  <Input
+                    placeholder="Location"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    {...field}
+                  />
+                  <FormMessage />
+                </>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -156,16 +212,18 @@ const Profile = ({ user }: Props) => {
           render={({ field }) => (
             <FormItem className="space-y-3.5">
               <FormLabel className="paragraph-semibold text-dark400_light800">
-                Bio <span className="text-primary-500">*</span>
+                Bio
               </FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="What's special about you?"
-                  className="no-focus paragraph-regular light-border-2 background-light800_dark300 text-dark300_light700 min-h-[56px] border"
-                  {...field}
-                />
+                <>
+                  <Textarea
+                    placeholder="Bio"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[120px] border"
+                    {...field}
+                  />
+                  <FormMessage />
+                </>
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
