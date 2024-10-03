@@ -1,18 +1,24 @@
-"use client"
+'use client';
 
 import UserCard from '@/components/cards/UserCard';
 import Filter from '@/components/shared/Filter';
 import NoResult from '@/components/shared/NoResult';
+import Pagination from '@/components/shared/Pagination';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { UserFilters } from '@/constants/filters';
 import { useGetAllTagsQuery } from '@/redux/features/tags/tagsApi';
+import { SearchParamsProps } from '@/types';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-const Page = () => {
+const Page = ({ searchParams }: SearchParamsProps) => {
   const [tags, setTags] = useState([]);
-  const { data, isLoading, isError } = useGetAllTagsQuery({});
-  
+  const { data, isLoading, isError } = useGetAllTagsQuery({
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
+  });
+
   useEffect(() => {
     if (data && data.tags) {
       setTags(data.tags);
@@ -58,7 +64,10 @@ const Page = () => {
 
                 <p className="small-medium text-dark400_light500 mt-3.5">
                   <span className="body-semibold primary-text-gradient mr-2.5">
-                    {tag.questions && tag.questions.length ? tag.questions.length : 0}+
+                    {tag.questions && tag.questions.length
+                      ? tag.questions.length
+                      : 0}
+                    +
                   </span>{' '}
                   Questions
                 </p>
@@ -74,6 +83,12 @@ const Page = () => {
           />
         )}
       </section>
+      <div className="mt-10">
+        <Pagination 
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={data.isNext}
+        />
+      </div>
     </>
   );
 };

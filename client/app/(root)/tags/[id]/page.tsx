@@ -12,7 +12,11 @@ const Page = ({ params, searchParams }: URLProps) => {
   const [tagTitle, setTagTitle] = useState('');
   const [questions, setQuestions] = useState([]);
 
-  const { data, isLoading, error } = useGetQuestionByTagsQuery(params.id);
+  const { data, isLoading, error } = useGetQuestionByTagsQuery({
+    tagId: params.id,
+    page: searchParams.page ? +searchParams.page : 1,
+    searchQuery: searchParams.q,
+  });
 
   useEffect(() => {
     if (data) {
@@ -30,7 +34,7 @@ const Page = ({ params, searchParams }: URLProps) => {
 
       <div className="mt-11 w-full">
         <LocalSearchbar
-          route="/"
+          route={`/tags/${params.id}`}
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
           placeholder="Search tag questions"
