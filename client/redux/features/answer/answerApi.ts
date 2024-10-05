@@ -16,9 +16,15 @@ export const answerApi = apiSlice.injectEndpoints({
       ],
     }),
     getAnswers: builder.query({
-      query: (questionId) => ({
-        url: `answers/${questionId}`,
+      query: (params) => ({
+        url: 'answers',
         method: 'GET',
+        params: {
+          questionId: params.questionId,
+          sortBy: params.sortBy,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [
@@ -27,7 +33,7 @@ export const answerApi = apiSlice.injectEndpoints({
       ],
     }),
     upvoteAnswer: builder.mutation({
-      query: (answerId) => ({
+      query: ({answerId}) => ({
         url: `upvote-answer/${answerId}`,
         method: 'PUT',
         credentials: 'include' as const,
@@ -35,7 +41,7 @@ export const answerApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],
     }),
     downvoteAnswer: builder.mutation({
-      query: (answerId) => ({
+      query: ({answerId}) => ({
         url: `downvote-answer/${answerId}`,
         method: 'PUT',
         credentials: 'include' as const,
@@ -43,7 +49,7 @@ export const answerApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],
     }),
     deleteAnswer: builder.mutation({
-      query: (answerId) => ({
+      query: ({answerId}) => ({
         url: `delete-answer/${answerId}`,
         method: 'DELETE',
         credentials: 'include' as const,
