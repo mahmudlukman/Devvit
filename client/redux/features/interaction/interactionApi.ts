@@ -8,6 +8,10 @@ export const interactionApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result, error, arg) => [
+        { type: 'Interaction', id: `VIEW_${arg.questionId}` },
+        { type: 'Question', id: arg.questionId },
+      ],
     }),
   }),
 });

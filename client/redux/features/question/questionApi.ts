@@ -1,4 +1,5 @@
 import { apiSlice } from '../api/apiSlice';
+import {getQuestionsFromResult} from '../../helper'
 
 export const questionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,6 +9,10 @@ export const questionApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result) => [
+        ...getQuestionsFromResult(result),
+        { type: 'Question', id: 'LIST' },
+      ],
     }),
     createQuestion: builder.mutation({
       query: (data) => ({
@@ -16,6 +21,7 @@ export const questionApi = apiSlice.injectEndpoints({
         body: data,
         credentials: 'include' as const,
       }),
+      invalidatesTags: [{ type: 'Question', id: 'LIST' }],
     }),
     getQuestion: builder.query({
       query: ({questionId}) => ({
@@ -23,6 +29,7 @@ export const questionApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result, error, arg) => [{ type: 'Question', id: arg.questionId }],
     }),
     upvoteQuestion: builder.mutation({
       query: ({questionId, data}) => ({
@@ -31,6 +38,7 @@ export const questionApi = apiSlice.injectEndpoints({
         body: data,
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Question', id: arg.questionId }],
     }),
     downvoteQuestion: builder.mutation({
       query: ({questionId, data}) => ({
@@ -39,6 +47,7 @@ export const questionApi = apiSlice.injectEndpoints({
         body: data,
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Question', id: arg.questionId }],
     }),
     deleteQuestion: builder.mutation({
       query: (questionId) => ({
@@ -46,27 +55,41 @@ export const questionApi = apiSlice.injectEndpoints({
         method: 'DELETE',
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, questionId) => [
+        { type: 'Question', id: questionId },
+        { type: 'Question', id: 'LIST' },
+      ],
     }),
     editQuestion: builder.mutation({
-      query: (questionId) => ({
+      query: ({questionId, data}) => ({
         url: `edit-question/${questionId}`,
         method: 'PUT',
+        body: data,
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Question', id: arg.questionId }],
     }),
-    getHotQuestion: builder.query({
+    getHotQuestions: builder.query({
       query: () => ({
         url: 'hot-questions',
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result) => [
+        ...getQuestionsFromResult(result),
+        { type: 'Question', id: 'HOT_LIST' },
+      ],
     }),
-    getRecommendedQuestion: builder.query({
+    getRecommendedQuestions: builder.query({
       query: () => ({
         url: 'recommended-questions',
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result) => [
+        ...getQuestionsFromResult(result),
+        { type: 'Question', id: 'RECOMMENDED_LIST' },
+      ],
     }),
   }),
 });
@@ -79,6 +102,6 @@ export const {
   useDownvoteQuestionMutation,
   useDeleteQuestionMutation,
   useEditQuestionMutation,
-  useGetHotQuestionQuery,
-  useGetRecommendedQuestionQuery,
+  useGetHotQuestionsQuery,
+  useGetRecommendedQuestionsQuery,
 } = questionApi;

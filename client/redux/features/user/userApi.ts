@@ -17,7 +17,7 @@ export const userApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
       providesTags: (result) =>
-        Array.isArray(result)
+        result
           ? [
               ...result.map(({ id }: any) => ({ type: 'User' as const, id })),
               { type: 'User', id: 'LIST' },
@@ -33,6 +33,7 @@ export const userApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, arg) => [
         { type: 'User', id: arg.data.id },
+        { type: 'User', id: 'LIST' },
       ],
     }),
     deleteUser: builder.mutation({
@@ -41,7 +42,10 @@ export const userApi = apiSlice.injectEndpoints({
         method: 'DELETE',
         credentials: 'include' as const,
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'User', id }],
+      invalidatesTags: (result, error, id) => [
+        { type: 'User', id },
+        { type: 'User', id: 'LIST' },
+      ],
     }),
     getSavedQuestions: builder.query({
       query: ({ userId }) => ({
@@ -50,15 +54,16 @@ export const userApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
       providesTags: (result) =>
-        Array.isArray(result)
+        result
           ? [
               ...result.map(({ id }: any) => ({
                 type: 'Question' as const,
                 id,
               })),
               { type: 'Question', id: 'SAVED_LIST' },
+              { type: 'User', id: 'SAVED_QUESTIONS' },
             ]
-          : [{ type: 'Question', id: 'SAVED_LIST' }],
+          : [{ type: 'Question', id: 'SAVED_LIST' }, { type: 'User', id: 'SAVED_QUESTIONS' }],
     }),
     toggleSavedQuestion: builder.mutation({
       query: (questionId) => ({
@@ -69,6 +74,7 @@ export const userApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, questionId) => [
         { type: 'Question', id: questionId },
         { type: 'Question', id: 'SAVED_LIST' },
+        { type: 'User', id: 'SAVED_QUESTIONS' },
       ],
     }),
     getUserAnswers: builder.query({
@@ -78,12 +84,13 @@ export const userApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
       providesTags: (result) =>
-        Array.isArray(result)
+        result
           ? [
               ...result.map(({ id }: any) => ({ type: 'Answer' as const, id })),
-              { type: 'Answer', id: 'LIST' },
+              { type: 'Answer', id: 'USER_LIST' },
+              { type: 'User', id: 'USER_ANSWERS' },
             ]
-          : [{ type: 'Answer', id: 'LIST' }],
+          : [{ type: 'Answer', id: 'USER_LIST' }, { type: 'User', id: 'USER_ANSWERS' }],
     }),
     getUserQuestions: builder.query({
       query: () => ({
@@ -92,15 +99,16 @@ export const userApi = apiSlice.injectEndpoints({
         credentials: 'include' as const,
       }),
       providesTags: (result) =>
-        Array.isArray(result)
+        result
           ? [
               ...result.map(({ id }: any) => ({
                 type: 'Question' as const,
                 id,
               })),
               { type: 'Question', id: 'USER_LIST' },
+              { type: 'User', id: 'USER_QUESTIONS' },
             ]
-          : [{ type: 'Question', id: 'USER_LIST' }],
+          : [{ type: 'Question', id: 'USER_LIST' }, { type: 'User', id: 'USER_QUESTIONS' }],
     }),
   }),
 });

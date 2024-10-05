@@ -24,6 +24,8 @@ const UserCard = ({ user }: Props) => {
 
   const interactedTags = data?.topInteractedTags || [];
 
+  console.log(interactedTags)
+
   const getAvatarUrl = (avatar: { url?: string } | string): string => {
     if (typeof avatar === 'string') {
       return avatar || '../../public/assets/icons/avatar.svg';

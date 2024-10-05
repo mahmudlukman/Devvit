@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import RenderTag from './RenderTag';
-import { useGetHotQuestionQuery } from '@/redux/features/question/questionApi';
+import { useGetHotQuestionsQuery } from '@/redux/features/question/questionApi';
 import { useGetPopularTagsQuery } from '@/redux/features/tags/tagsApi';
 
 const RightSidebar = () => {
   const [hotQuestions, setHotQuestions] = useState([]);
   const [popularTags, setPopularTags] = useState([]);
-  const { data: hotQuestionsData } = useGetHotQuestionQuery({});
+  const { data: hotQuestionsData } = useGetHotQuestionsQuery({});
   const { data: popularTagsData} = useGetPopularTagsQuery({});
   
   useEffect(() => {

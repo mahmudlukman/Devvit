@@ -1,4 +1,5 @@
 import { apiSlice } from '../api/apiSlice';
+import {getAnswersFromResult} from '../../helper'
 
 export const answerApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,27 +10,37 @@ export const answerApi = apiSlice.injectEndpoints({
         body: data,
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, arg) => [
+        { type: 'Answer', id: 'LIST' },
+        { type: 'Question', id: arg.questionId },
+      ],
     }),
     getAnswers: builder.query({
-      query: () => ({
-        url: 'answers',
+      query: (questionId) => ({
+        url: `answers/${questionId}`,
         method: 'GET',
         credentials: 'include' as const,
       }),
+      providesTags: (result) => [
+        ...getAnswersFromResult(result),
+        { type: 'Answer', id: 'LIST' },
+      ],
     }),
     upvoteAnswer: builder.mutation({
-      query: () => ({
-        url: 'upvote-answer',
+      query: (answerId) => ({
+        url: `upvote-answer/${answerId}`,
         method: 'PUT',
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],
     }),
     downvoteAnswer: builder.mutation({
-      query: () => ({
-        url: 'downvote-answer',
+      query: (answerId) => ({
+        url: `downvote-answer/${answerId}`,
         method: 'PUT',
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],
     }),
     deleteAnswer: builder.mutation({
       query: (answerId) => ({
@@ -37,6 +48,10 @@ export const answerApi = apiSlice.injectEndpoints({
         method: 'DELETE',
         credentials: 'include' as const,
       }),
+      invalidatesTags: (result, error, answerId) => [
+        { type: 'Answer', id: answerId },
+        { type: 'Answer', id: 'LIST' },
+      ],
     }),
   }),
 });
