@@ -18,6 +18,8 @@ const Page = ({ params, searchParams }: URLProps) => {
     searchQuery: searchParams.q,
   });
 
+  console.log(data)
+
   useEffect(() => {
     if (data) {
       setTagTitle(data.tagTitle || '');

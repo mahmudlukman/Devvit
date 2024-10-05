@@ -26,7 +26,7 @@ export const tagsApi = apiSlice.injectEndpoints({
       ],
     }),
     getQuestionByTags: builder.query({
-      query: (tagId) => ({
+      query: ({tagId}) => ({
         url: `question-by-tag/${tagId}`,
         method: 'GET',
         credentials: 'include' as const,

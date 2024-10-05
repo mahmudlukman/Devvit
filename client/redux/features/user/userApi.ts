@@ -1,4 +1,5 @@
 import { apiSlice } from '../api/apiSlice';
+import { getUsersFromResult } from '../../helper';
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -16,13 +17,10 @@ export const userApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }: any) => ({ type: 'User' as const, id })),
-              { type: 'User', id: 'LIST' },
-            ]
-          : [{ type: 'User', id: 'LIST' }],
+      providesTags: (result) => [
+        ...getUsersFromResult(result),
+        { type: 'User', id: 'LIST' },
+      ],
     }),
     updateUserProfile: builder.mutation({
       query: ({ data }) => ({
@@ -53,17 +51,11 @@ export const userApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }: any) => ({
-                type: 'Question' as const,
-                id,
-              })),
-              { type: 'Question', id: 'SAVED_LIST' },
-              { type: 'User', id: 'SAVED_QUESTIONS' },
-            ]
-          : [{ type: 'Question', id: 'SAVED_LIST' }, { type: 'User', id: 'SAVED_QUESTIONS' }],
+      providesTags: (result) => [
+        ...getUsersFromResult(result),
+        { type: 'Question', id: 'SAVED_LIST' },
+        { type: 'User', id: 'SAVED_QUESTIONS' },
+      ],
     }),
     toggleSavedQuestion: builder.mutation({
       query: (questionId) => ({
@@ -83,14 +75,11 @@ export const userApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }: any) => ({ type: 'Answer' as const, id })),
-              { type: 'Answer', id: 'USER_LIST' },
-              { type: 'User', id: 'USER_ANSWERS' },
-            ]
-          : [{ type: 'Answer', id: 'USER_LIST' }, { type: 'User', id: 'USER_ANSWERS' }],
+      providesTags: (result) => [
+        ...getUsersFromResult(result),
+        { type: 'Answer', id: 'USER_LIST' },
+        { type: 'User', id: 'USER_ANSWERS' },
+      ],
     }),
     getUserQuestions: builder.query({
       query: () => ({
@@ -98,17 +87,11 @@ export const userApi = apiSlice.injectEndpoints({
         method: 'GET',
         credentials: 'include' as const,
       }),
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }: any) => ({
-                type: 'Question' as const,
-                id,
-              })),
-              { type: 'Question', id: 'USER_LIST' },
-              { type: 'User', id: 'USER_QUESTIONS' },
-            ]
-          : [{ type: 'Question', id: 'USER_LIST' }, { type: 'User', id: 'USER_QUESTIONS' }],
+      providesTags: (result) => [
+        ...getUsersFromResult(result),
+        { type: 'Question', id: 'USER_LIST' },
+        { type: 'User', id: 'USER_QUESTIONS' },
+      ],
     }),
   }),
 });

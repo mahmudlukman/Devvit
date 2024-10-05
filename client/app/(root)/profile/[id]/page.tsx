@@ -48,14 +48,14 @@ const Page = ({ params, searchParams }: URLProps) => {
 
           <div className="mt-3">
             <h2 className="h2-bold text-dark100_light900">
-              {userInfo.user.name}
+              {userInfo?.user.name}
             </h2>
             <p className="paragraph-regular text-dark200_light800">
-              @{userInfo.user.username}
+              @{userInfo?.user.username}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
-              {userInfo.user.portfolioWebsite && (
+              {userInfo?.user.portfolioWebsite && (
                 <ProfileLink
                   imgUrl="/assets/icons/link.svg"
                   href={userInfo.user.portfolioWebsite}
@@ -63,7 +63,7 @@ const Page = ({ params, searchParams }: URLProps) => {
                 />
               )}
 
-              {userInfo.user.location && (
+              {userInfo?.user.location && (
                 <ProfileLink
                   imgUrl="/assets/icons/location.svg"
                   title={userInfo.user.location}
@@ -72,20 +72,20 @@ const Page = ({ params, searchParams }: URLProps) => {
 
               <ProfileLink
                 imgUrl="/assets/icons/calendar.svg"
-                title={getJoinedDate(userInfo.user.joinedAt)}
+                title={getJoinedDate(userInfo?.user.joinedAt)}
               />
             </div>
 
             {userInfo.user.bio && (
               <p className="paragraph-regular text-dark400_light800 mt-8">
-                {userInfo.user.bio}
+                {userInfo?.user.bio}
               </p>
             )}
           </div>
         </div>
 
         <div className="flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3">
-          {user._id === userInfo.user._id && (
+          {user?._id === userInfo?.user._id && (
             <Link href="/profile/edit">
               <Button className="paragraph-medium btn-secondary text-dark300_light900 min-h-[46px] min-w-[175px] px-4 py-3">
                 Edit Profile
@@ -96,10 +96,10 @@ const Page = ({ params, searchParams }: URLProps) => {
       </div>
 
       <Stats
-        reputation={userInfo.reputation}
-        totalQuestions={userInfo.totalQuestions}
-        totalAnswers={userInfo.totalAnswers}
-        badges={userInfo.badgeCounts}
+        reputation={userInfo?.reputation}
+        totalQuestions={userInfo?.totalQuestions}
+        totalAnswers={userInfo?.totalAnswers}
+        badges={userInfo?.badgeCounts}
       />
 
       <div className="mt-10 flex gap-10">

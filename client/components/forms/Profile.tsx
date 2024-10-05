@@ -130,7 +130,7 @@ const Profile = ({ user }: Props) => {
                 <>
                   <Input
                     placeholder="Name"
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border text-dark400_light800"
                     {...field}
                   />
                   <FormMessage />
@@ -152,7 +152,7 @@ const Profile = ({ user }: Props) => {
                 <>
                   <Input
                     placeholder="Username"
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border text-dark400_light800"
                     {...field}
                   />
                   <FormMessage />
@@ -174,7 +174,7 @@ const Profile = ({ user }: Props) => {
                 <>
                   <Input
                     placeholder="Portfolio Website"
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border text-dark400_light800"
                     {...field}
                   />
                   <FormMessage />
@@ -196,7 +196,7 @@ const Profile = ({ user }: Props) => {
                 <>
                   <Input
                     placeholder="Location"
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border text-dark400_light800"
                     {...field}
                   />
                   <FormMessage />
@@ -218,7 +218,7 @@ const Profile = ({ user }: Props) => {
                 <>
                   <Textarea
                     placeholder="Bio"
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[120px] border"
+                    className="no-focus light-border-2 background-light800_dark300 min-h-[120px] border text-dark400_light800"
                     {...field}
                   />
                   <FormMessage />
