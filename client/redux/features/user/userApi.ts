@@ -12,9 +12,15 @@ export const userApi = apiSlice.injectEndpoints({
       providesTags: (result, error, arg) => [{ type: 'User', id: arg.userId }],
     }),
     getAllUsers: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: 'users',
         method: 'GET',
+        params: {
+          searchQuery: params.searchQuery,
+          filter: params.filter,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [
@@ -47,9 +53,15 @@ export const userApi = apiSlice.injectEndpoints({
       ],
     }),
     getSavedQuestions: builder.query({
-      query: ({ userId }) => ({
+      query: ({ userId, searchQuery, filter, page, pageSize }) => ({
         url: `saved-questions/${userId}`,
         method: 'GET',
+        params: {
+          searchQuery,
+          filter,
+          page,
+          pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [
@@ -71,9 +83,14 @@ export const userApi = apiSlice.injectEndpoints({
       ],
     }),
     getUserAnswers: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: 'user-answers',
         method: 'GET',
+        params: {
+          userId: params.userId,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [
@@ -83,9 +100,14 @@ export const userApi = apiSlice.injectEndpoints({
       ],
     }),
     getUserQuestions: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: 'user-questions',
         method: 'GET',
+        params: {
+          userId: params.userId,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [

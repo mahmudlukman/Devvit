@@ -7,28 +7,34 @@ import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { QuestionFilters } from '@/constants/filters';
 import { useGetSavedQuestionsQuery } from '@/redux/features/user/userApi';
 import { SearchParamsProps } from '@/types';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export default function Home({ searchParams }: SearchParamsProps) {
+  const router = useRouter();
   const { user } = useSelector((state: any) => state.auth);
   const [questions, setQuestions] = useState([]);
 
-  if (!user) redirect('/login');
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
 
   const { data, isLoading, isError } = useGetSavedQuestionsQuery({
     userId: user._id,
     searchQuery: searchParams.q,
     filter: searchParams.filter,
     page: searchParams.page ? +searchParams.page : 1,
+  }, {
+    skip: !user?._id
   });
 
   useEffect(() => {
     if (data && data.savedQuestions) {
       setQuestions(data.savedQuestions);
     }
-    console.log(data)
   }, [data]);
 
   if (isLoading) return <div>Loading...</div>;
@@ -54,7 +60,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {data.questions && data.questions.length > 0 ? (
+        {data?.questions && data?.questions.length > 0 ? (
           data.questions.map((question: any) => (
             <QuestionCard
               key={question._id}

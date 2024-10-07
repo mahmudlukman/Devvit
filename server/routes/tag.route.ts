@@ -16,7 +16,7 @@ tagRouter.get(
 );
 
 tagRouter.get(
-  '/question-by-tag/:tagId',
+  '/question-by-tag',
   getQuestionsByTagId
 );
 

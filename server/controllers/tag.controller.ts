@@ -97,6 +97,7 @@ export const getAllTags = catchAsyncError(
 );
 
 interface IGetQuestionsByTagId {
+  tagId: string;
   page?: number;
   pageSize?: number;
   searchQuery?: string;
@@ -106,12 +107,13 @@ interface IGetQuestionsByTagId {
 export const getQuestionsByTagId = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { tagId } = req.params;
+      // const { tagId } = req.params;
       const {
+        tagId,
         page = 1,
         pageSize = 10,
         searchQuery,
-      } = req.query as IGetQuestionsByTagId;
+      } = req.query as unknown as IGetQuestionsByTagId;
 
       const skipAmount = (page - 1) * pageSize;
 

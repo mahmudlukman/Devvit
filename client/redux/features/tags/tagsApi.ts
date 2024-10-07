@@ -15,9 +15,15 @@ export const tagsApi = apiSlice.injectEndpoints({
       ],
     }),
     getAllTags: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: 'tags',
         method: 'GET',
+        params: {
+          searchQuery: params.searchQuery,
+          filter: params.filter,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [
@@ -26,9 +32,15 @@ export const tagsApi = apiSlice.injectEndpoints({
       ],
     }),
     getQuestionByTags: builder.query({
-      query: ({tagId}) => ({
-        url: `question-by-tag/${tagId}`,
+      query: ({tagId, searchQuery, page, pageSize}) => ({
+        url: 'question-by-tag',
         method: 'GET',
+        params: {
+          tagId,
+          searchQuery,
+          page,
+          pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result, error, tagId) => [
