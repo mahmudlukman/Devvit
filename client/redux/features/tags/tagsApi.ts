@@ -4,9 +4,12 @@ import {getTagsFromResult} from '../../helper'
 export const tagsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getTopInteractedTags: builder.query({
-      query: (id) => ({
-        url: `top-tags/${id}`,
+      query: (params) => ({
+        url: 'top-tags',
         method: 'GET',
+        params: {
+          userId: params.userId
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [

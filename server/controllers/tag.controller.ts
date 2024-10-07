@@ -41,7 +41,7 @@ export const getTopInteractedTags = catchAsyncError(
         { $unwind: '$tags' },
         { $group: { _id: '$tags', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 5 },
+        { $limit: 3 },
         {
           $lookup: {
             from: 'tags',

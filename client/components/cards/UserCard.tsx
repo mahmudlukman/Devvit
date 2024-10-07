@@ -20,7 +20,7 @@ interface Props {
 }
 
 const UserCard = ({ user }: Props) => {
-  const { data, isLoading, isError } = useGetTopInteractedTagsQuery(user._id);
+  const { data, isLoading, isError } = useGetTopInteractedTagsQuery({ userId: user._id });
 
   const interactedTags = data?.topInteractedTags || [];
 
