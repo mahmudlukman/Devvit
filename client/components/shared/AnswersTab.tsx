@@ -1,6 +1,7 @@
 'use client';
 
 import { useGetAnswersQuery } from '@/redux/features/answer/answerApi';
+import { useGetUserAnswersQuery } from '@/redux/features/user/userApi';
 import { SearchParamsProps } from '@/types';
 import AnswerCard from '../cards/AnswerCard';
 import Pagination from './Pagination';
@@ -14,7 +15,7 @@ interface Props extends SearchParamsProps {
 
 const AnswersTab = ({ searchParams, userId }: Props) => {
   const [answers, setAnswers] = useState([]);
-  const { data, isLoading, isError } = useGetAnswersQuery({
+  const { data, isLoading, isError } = useGetUserAnswersQuery({
     userId,
     page: searchParams.page ? +searchParams.page : 1,
   });
@@ -30,27 +31,16 @@ const AnswersTab = ({ searchParams, userId }: Props) => {
 
   return (
     <>
-      {/* {result.answers.map((item: any) => (
-        <AnswerCard
-          key={item._id}
-          _id={item._id}
-          question={item.question}
-          author={item.author}
-          upvotes={item.upvotes.length}
-          createdAt={item.createdAt}
-        />
-      ))} */}
-
       <div className="mt-10 flex w-full flex-col gap-6">
         {answers.length > 0 ? (
-          answers.map((item: any) => (
+          answers.map((answer: any) => (
             <AnswerCard
-              key={item._id}
-              _id={item._id}
-              question={item.question}
-              author={item.author}
-              upvotes={item.upvotes.length}
-              createdAt={item.createdAt}
+              key={answer._id}
+              _id={answer._id}
+              question={answer.question}
+              author={answer.author}
+              upvotes={answer.upvotes.length}
+              createdAt={answer.createdAt}
             />
           ))
         ) : (

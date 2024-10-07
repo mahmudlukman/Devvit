@@ -117,12 +117,12 @@ const Page = ({ params, searchParams }: URLProps) => {
             className="mt-5 flex w-full flex-col gap-6"
           >
             <>
-              <QuestionTab searchParams={searchParams} userId={user._id} />
+              <QuestionTab searchParams={searchParams} userId={userInfo?.user._id} />
             </>
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
             <>
-              <AnswersTab searchParams={searchParams} userId={user._id} />
+              <AnswersTab searchParams={searchParams} userId={userInfo?.user._id} />
             </>
           </TabsContent>
         </Tabs>
