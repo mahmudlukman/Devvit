@@ -4,9 +4,15 @@ import {getQuestionsFromResult} from '../../helper'
 export const questionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getQuestions: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: 'questions',
         method: 'GET',
+        params: {
+          searchQuery: params.searchQuery,
+          filter: params.filter,
+          page: params.page,
+          pageSize: params.pageSize
+        },
         credentials: 'include' as const,
       }),
       providesTags: (result) => [

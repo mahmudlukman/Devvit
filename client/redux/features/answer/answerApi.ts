@@ -33,17 +33,19 @@ export const answerApi = apiSlice.injectEndpoints({
       ],
     }),
     upvoteAnswer: builder.mutation({
-      query: ({answerId}) => ({
+      query: ({answerId, data}) => ({
         url: `upvote-answer/${answerId}`,
         method: 'PUT',
+        body: data,
         credentials: 'include' as const,
       }),
       invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],
     }),
     downvoteAnswer: builder.mutation({
-      query: ({answerId}) => ({
+      query: ({answerId, data}) => ({
         url: `downvote-answer/${answerId}`,
         method: 'PUT',
+        body: data,
         credentials: 'include' as const,
       }),
       invalidatesTags: (result, error, answerId) => [{ type: 'Answer', id: answerId }],

@@ -62,7 +62,7 @@ const Profile = ({ user }: Props) => {
           portfolioWebsite: values.portfolioWebsite,
           location: values.location,
           bio: values.bio,
-          avatar: values.avatar,
+          avatar: values.avatar || '',
         },
         path: pathname,
       });

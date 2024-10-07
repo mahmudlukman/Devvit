@@ -64,40 +64,40 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     }
   };
 
-  const generateAIAnswer = async () => {
-    if (!authorId) return;
+  // const generateAIAnswer = async () => {
+  //   if (!authorId) return;
 
-    setSetIsSubmittingAI(true);
+  //   setSetIsSubmittingAI(true);
 
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ question }),
-        }
-      );
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+  //       {
+  //         method: 'POST',
+  //         body: JSON.stringify({ question }),
+  //       }
+  //     );
 
-      const aiAnswer = await response.json();
+  //     const aiAnswer = await response.json();
 
-      // alert(aiAnswer.reply);
+  //     // alert(aiAnswer.reply);
 
-      // Convert plain text to HTML format
+  //     // Convert plain text to HTML format
 
-      const formattedAnswer = aiAnswer.reply.replace(/\n/g, '<br />');
+  //     const formattedAnswer = aiAnswer.reply.replace(/\n/g, '<br />');
 
-      if (editorRef.current) {
-        const editor = editorRef.current as any;
-        editor.setContent(formattedAnswer);
-      }
+  //     if (editorRef.current) {
+  //       const editor = editorRef.current as any;
+  //       editor.setContent(formattedAnswer);
+  //     }
 
-      // Toast...
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setSetIsSubmittingAI(false);
-    }
-  };
+  //     // Toast...
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setSetIsSubmittingAI(false);
+  //   }
+  // };
 
   return (
     <div>
@@ -106,7 +106,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
           Write your answer here
         </h4>
 
-        <Button
+        {/* <Button
           className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
           onClick={generateAIAnswer}
         >
@@ -124,7 +124,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
               Generate AI Answer
             </>
           )}
-        </Button>
+        </Button> */}
       </div>
 
       <Form {...form}>

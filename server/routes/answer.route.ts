@@ -4,7 +4,7 @@ import {
   deleteAnswer,
   downvoteAnswers,
   getAnswers,
-  upvoteAnswers,
+  upvoteAnswer,
 } from '../controllers/answer.controller';
 import { isAuthenticated } from '../middleware/auth';
 import { updateAccessToken } from '../controllers/auth.controller';
@@ -24,13 +24,13 @@ answerRouter.get(
 );
 
 answerRouter.put(
-  '/upvote-answer',
+  '/upvote-answer/:answerId',
   updateAccessToken,
   isAuthenticated,
-  upvoteAnswers
+  upvoteAnswer
 );
 answerRouter.put(
-  '/downvote-answer',
+  '/downvote-answer/:answerId',
   updateAccessToken,
   isAuthenticated,
   downvoteAnswers

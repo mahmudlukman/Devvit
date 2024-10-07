@@ -27,6 +27,7 @@ export const userApi = apiSlice.injectEndpoints({
         url: 'update-user-profile',
         method: 'PUT',
         body: data,
+        formData: true,
         credentials: 'include' as const,
       }),
       invalidatesTags: (result, error, arg) => [

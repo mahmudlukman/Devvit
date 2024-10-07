@@ -18,8 +18,6 @@ const QuestionTab = ({ searchParams, userId }: Props) => {
     page: searchParams.page ? +searchParams.page : 1,
   });
 
-  console.log(data);
-
   useEffect(() => {
     if (data && data.questions) {
       setQuestions(data.questions);
@@ -31,20 +29,6 @@ const QuestionTab = ({ searchParams, userId }: Props) => {
 
   return (
     <>
-      {/* {result.questions.map((question: any) => (
-        <QuestionCard
-          key={question._id}
-          _id={question._id}
-          title={question.title}
-          tags={question.tags}
-          author={question.author}
-          upvotes={question.upvotes}
-          views={question.views}
-          answers={question.answers}
-          createdAt={question.createdAt}
-        />
-      ))} */}
-
       <div className="mt-10 flex w-full flex-col gap-6">
         {questions.length > 0 ? (
           questions.map((question: any) => (

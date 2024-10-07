@@ -292,7 +292,7 @@ export const updateUserProfile = catchAsyncError(
       if (portfolioWebsite) user.portfolioWebsite = portfolioWebsite;
       if (location) user.location = location;
 
-      if (avatar) {
+      if (avatar && avatar !== user.avatar?.url) {
         if (user.avatar?.public_id) {
           await cloudinary.v2.uploader.destroy(user.avatar.public_id);
         }
