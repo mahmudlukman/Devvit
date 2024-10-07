@@ -2,7 +2,7 @@ import express from 'express';
 import {
   createAnswer,
   deleteAnswer,
-  downvoteAnswers,
+  downvoteAnswer,
   getAnswers,
   upvoteAnswer,
 } from '../controllers/answer.controller';
@@ -33,7 +33,7 @@ answerRouter.put(
   '/downvote-answer/:answerId',
   updateAccessToken,
   isAuthenticated,
-  downvoteAnswers
+  downvoteAnswer
 );
 
 answerRouter.delete(
