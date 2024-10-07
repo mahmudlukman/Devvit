@@ -3,32 +3,91 @@ import { catchAsyncError } from '../middleware/catchAsyncError';
 import ErrorHandler from '../utils/errorHandler';
 import Question from '../models/question.model';
 import UserModel from '../models/user.model';
-import { FilterQuery, Schema } from 'mongoose';
+import { FilterQuery, Schema, Types } from 'mongoose';
 import Tag, { ITag } from '../models/tag.model';
 
 // get Top Interacted Tags
 export const getTopInteractedTags = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId } = req.query;
+      const userId = req.query.userId;
+
+      if (!userId || typeof userId !== 'string') {
+        return next(new ErrorHandler('Valid user ID is required', 400));
+      }
+
+      if (!Types.ObjectId.isValid(userId)) {
+        return next(new ErrorHandler('Invalid user ID format', 400));
+      }
 
       const user = await UserModel.findById(userId);
 
       if (!user) {
-        return next(new ErrorHandler('User not found', 400));
+        return next(new ErrorHandler('User not found', 404));
       }
-      // Find interactions for the user and group by tags...
-      // Interaction...
-      const topInteractedTags = [
-        { _id: '1', name: 'tag' },
-        { _id: '2', name: 'tag2' },
-      ];
-      res.status(200).json({ success: true, topInteractedTags });
+
+      const interactedQuestions = await Question.aggregate([
+        {
+          $match: {
+            $or: [
+              { author: new Types.ObjectId(userId) },
+              { answers: { $elemMatch: { author: new Types.ObjectId(userId) } } },
+              { upvotes: new Types.ObjectId(userId) },
+              { downvotes: new Types.ObjectId(userId) }
+            ]
+          }
+        },
+        { $project: { tags: 1 } },
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+        {
+          $lookup: {
+            from: 'tags',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'tagInfo'
+          }
+        },
+        { $unwind: '$tagInfo' },
+        {
+          $project: {
+            _id: '$tagInfo._id',
+            name: '$tagInfo.name',
+            count: 1
+          }
+        }
+      ]);
+
+      res.status(200).json({ success: true, topInteractedTags: interactedQuestions });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
+// export const getTopInteractedTags = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { userId } = req.query;
+
+//       const user = await UserModel.findById(userId);
+
+//       if (!user) {
+//         return next(new ErrorHandler('User not found', 400));
+//       }
+//       // Find interactions for the user and group by tags...
+//       // Interaction...
+//       const topInteractedTags = [
+//         { _id: '1', name: 'tag' },
+//         { _id: '2', name: 'tag2' },
+//       ];
+//       res.status(200).json({ success: true, topInteractedTags });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
 
 interface IGetAllTags {
   page?: number;
@@ -107,7 +166,6 @@ interface IGetQuestionsByTagId {
 export const getQuestionsByTagId = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const { tagId } = req.params;
       const {
         tagId,
         page = 1,

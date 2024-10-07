@@ -6,7 +6,7 @@ import { updateAccessToken } from '../controllers/auth.controller';
 const tagRouter = express.Router();
 
 tagRouter.get(
-  '/top-tags/:userId',
+  '/top-tags',
   getTopInteractedTags
 );
 
