@@ -10,6 +10,7 @@ import questionRouter from './routes/question.route';
 import tagRouter from './routes/tag.route';
 import answerRouter from './routes/answer.route';
 import interactionRouter from './routes/interaction.route';
+import globalSearchRouter from './routes/general.route';
 
 // body parser
 app.use(express.json({ limit: '50mb' }));
@@ -33,6 +34,7 @@ app.use('/api/v1', questionRouter);
 app.use('/api/v1', tagRouter);
 app.use('/api/v1', answerRouter);
 app.use('/api/v1', interactionRouter);
+app.use('/api/v1', globalSearchRouter);
 
 // testing API
 app.get('/test', (req: Request, res: Response, next: NextFunction) => {

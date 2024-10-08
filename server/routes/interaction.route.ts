@@ -7,7 +7,7 @@ const interactionRouter = express.Router();
 
 interactionRouter.get(
   '/view-question/:questionId',
-  // updateAccessToken,
+  updateAccessToken,
   isAuthenticated,
   viewQuestion
 );
