@@ -14,16 +14,21 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { Textarea } from '../ui/textarea';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProfileSchema } from '@/lib/validations';
 import { redirect, usePathname, useRouter } from 'next/navigation';
 import { useUpdateUserProfileMutation } from '@/redux/features/user/userApi';
+import { Pen } from 'lucide-react';
+import Image from 'next/image';
 
 interface User {
   name: string;
   username: string;
   bio: string;
-  avatar?: string; 
+  avatar: {
+    public_id: string;
+    url: string;
+  } | null;
   portfolioWebsite: string;
   location: string;
 }
@@ -37,7 +42,7 @@ const Profile = ({ user }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
   const [updateUserProfile] = useUpdateUserProfileMutation();
-  const [avatarPreview, setAvatarPreview] = useState(user.avatar || '');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof ProfileSchema>>({
     resolver: zodResolver(ProfileSchema),
@@ -47,9 +52,15 @@ const Profile = ({ user }: Props) => {
       portfolioWebsite: user.portfolioWebsite || '',
       location: user.location || '',
       bio: user.bio || '',
-      avatar: user.avatar || '',
+      avatar: user.avatar?.url || '',
     },
   });
+
+  useEffect(() => {
+    if (user.avatar?.url) {
+      setAvatarPreview(user.avatar.url);
+    }
+  }, [user.avatar]);
 
   async function onSubmit(values: z.infer<typeof ProfileSchema>) {
     setIsSubmitting(true);
@@ -65,11 +76,11 @@ const Profile = ({ user }: Props) => {
           avatar: values.avatar || '',
         },
         path: pathname,
-      });
+      }).unwrap();
 
       router.back();
     } catch (error) {
-      console.log(error);
+      console.error('Error updating profile:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,17 +115,27 @@ const Profile = ({ user }: Props) => {
                 Avatar
               </FormLabel>
               <FormControl>
-                <>
+                <div className="relative w-32 h-32">
+                  <Image
+                    src={avatarPreview || '/default-avatar.png'}
+                    alt="Avatar"
+                    width={128}
+                    height={128}
+                    className="rounded-full object-cover"
+                  />
+                  <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-primary-500 rounded-full p-2 cursor-pointer">
+                    <Pen className="w-4 h-4 text-white" />
+                  </label>
                   <input
+                    id="avatar-upload"
                     type="file"
-                    name="avatar"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="no-focus light-border-2 background-light800_dark300 min-h-[56px] border"
+                    className="hidden"
                   />
-                  <FormMessage />
-                </>
+                </div>
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
