@@ -6,7 +6,7 @@ import Theme from './Theme';
 import MobileNav from './MobileNav';
 import { UserButton } from '@/components/auth/UserButton';
 import { useSelector } from 'react-redux';
-// import GlobalSearch from '../search/GlobalSearch'
+import GlobalSearch from '../search/GlobalSearch';
 
 const Navbar = () => {
   const { user } = useSelector((state: any) => state.auth);
@@ -25,7 +25,7 @@ const Navbar = () => {
         </p>
       </Link>
 
-      {/* <GlobalSearch /> */}
+      <GlobalSearch />
 
       <div className="flex-between gap-5">
         <Theme />

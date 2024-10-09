@@ -23,19 +23,6 @@ const Page = ({ params }: ParamsProps) => {
     return <div>Loading...</div>;
   }
 
-  // const handleUpdateQuestion = async (updatedData: any) => {
-  //   try {
-  //     await editQuestion({
-  //       questionId: params.id,
-  //       ...updatedData
-  //     }).unwrap();
-  //     router.push(`/question/${params.id}`);
-  //   } catch (error) {
-  //     console.error('Failed to update question:', error);
-  //     // Handle error (e.g., show error message to user)
-  //   }
-  // };
-
   if (isError) {
     return <div>Error loading question. Please try again.</div>;
   }
@@ -53,7 +40,6 @@ const Page = ({ params }: ParamsProps) => {
           type="Edit"
           userId={user?._id}
           questionDetails={JSON.stringify(result.question)}
-          // onSubmit={handleUpdateQuestion}
         />
       </div>
     </>

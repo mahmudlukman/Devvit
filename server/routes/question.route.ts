@@ -55,7 +55,7 @@ questionRouter.delete(
 
 questionRouter.put(
   '/edit-question/:questionId',
-  updateAccessToken,
+  // updateAccessToken,
   isAuthenticated,
   editQuestion
 );
