@@ -9,13 +9,39 @@ import Pagination from '@/components/shared/Pagination';
 import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
 import { Button } from '@/components/ui/button';
 import { HomePageFilters } from '@/constants/filters';
-import { useGetQuestionsQuery } from '@/redux/features/question/questionApi';
+import { useGetQuestionsQuery, useGetRecommendedQuestionsQuery } from '@/redux/features/question/questionApi';
 import { SearchParamsProps } from '@/types';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 
-export default function Home() {
-  const { data, isLoading, isError } = useGetQuestionsQuery({});
+export default function Home({ searchParams }: SearchParamsProps) {
+  const { user } = useSelector((state: any) => state.auth);
+
+  const { data: recommendedData, isLoading: recommendedLoading } = useGetRecommendedQuestionsQuery(undefined, {
+    skip: !user || searchParams?.filter !== 'recommended',
+  });
+
+  const { data: questionsData, isLoading: questionsLoading, isError } = useGetQuestionsQuery({
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
+    pageSize: 10, // Adjust as needed
+  }, {
+    skip: searchParams?.filter === 'recommended',
+  });
+
+  const isLoading = recommendedLoading || questionsLoading;
+
+  let questions = [];
+  let isNext = false;
+
+  if (searchParams?.filter === 'recommended' && user) {
+    questions = recommendedData?.questions || [];
+    isNext = recommendedData?.isNext || false;
+  } else {
+    questions = questionsData?.questions || [];
+    isNext = questionsData?.isNext || false;
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -24,8 +50,6 @@ export default function Home() {
   if (isError) {
     return <div>Error loading questions</div>;
   }
-
-  const questions = data?.questions || [];
 
   return (
     <>
@@ -80,12 +104,21 @@ export default function Home() {
         ) : (
           <NoResult
             title="There's no question to show"
-            description="Be the first to break the silence! 🚀 Ask a Question and kickstart the discussion. our query could be the next big thing others learn from. Get involved! 💡"
+            description="Be the first to break the silence! 🚀 Ask a Question and kickstart the discussion. Your query could be the next big thing others learn from. Get involved! 💡"
             link="/ask-question"
             linkTitle="Ask a Question"
           />
         )}
       </div>
+
+      {questions.length > 0 && (
+        <div className="mt-10">
+          <Pagination 
+            pageNumber={searchParams?.page ? +searchParams.page : 1}
+            isNext={isNext}
+          />
+        </div>
+      )}
     </>
   );
 }
