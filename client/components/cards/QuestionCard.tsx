@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import React from 'react'
+import { useSelector } from 'react-redux';
 import RenderTag from '../shared/RenderTag';
 import Metric from '../shared/Metric';
+import EditDeleteAction from '../shared/EditDeleteAction';
 import { formatAndDivideNumber, getTimestamp } from '@/lib/utils';
 
 interface QuestionProps {
@@ -34,6 +36,7 @@ const QuestionCard = ({
   answers,
   createdAt
 }: QuestionProps) => {
+  const { user } = useSelector((state: any) => state.auth);
 
   const getAvatarUrl = (avatar: { url?: string } | string): string => {
     if (typeof avatar === 'string') {
@@ -55,8 +58,10 @@ const QuestionCard = ({
             </h3>
           </Link>
         </div>
-
-        {/* If signed in add edit delete actions */}
+        
+        {user && user._id === author._id && (
+          <EditDeleteAction type="Question" itemId={JSON.stringify(_id)} />
+        )}
       </div>
       
       <div className="mt-3.5 flex flex-wrap gap-2">
@@ -99,7 +104,6 @@ const QuestionCard = ({
             textStyles="small-medium text-dark400_light800"
           />
       </div>
-      
     </div>
   )
 }

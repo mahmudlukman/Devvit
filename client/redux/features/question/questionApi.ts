@@ -67,7 +67,7 @@ export const questionApi = apiSlice.injectEndpoints({
       ],
     }),
     editQuestion: builder.mutation({
-      query: ({questionId, data}) => ({
+      query: ({questionId, ...data}) => ({
         url: `edit-question/${questionId}`,
         method: 'PUT',
         body: data,
