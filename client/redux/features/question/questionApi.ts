@@ -56,8 +56,8 @@ export const questionApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, arg) => [{ type: 'Question', id: arg.questionId }],
     }),
     deleteQuestion: builder.mutation({
-      query: (questionId) => ({
-        url: `question/${questionId}`,
+      query: ({questionId}) => ({
+        url: `delete-question/${questionId}`,
         method: 'DELETE',
         credentials: 'include' as const,
       }),

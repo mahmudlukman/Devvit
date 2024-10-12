@@ -4,6 +4,7 @@ import { useDeleteAnswerMutation } from '@/redux/features/answer/answerApi';
 import { useDeleteQuestionMutation } from '@/redux/features/question/questionApi';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Props {
   type: string;
@@ -27,12 +28,14 @@ const EditDeleteAction = ({ type, itemId }: Props) => {
         questionId: JSON.parse(itemId),
         path: pathname,
       });
+      toast.success('Question Deleted Successfully');
     } else if (type === 'Answer') {
       // Delete answer
       await deleteAnswer({
         answerId: JSON.parse(itemId),
         path: pathname,
       });
+      toast.success('Answer Deleted Successfully');
     }
   };
 
