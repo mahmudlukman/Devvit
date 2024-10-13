@@ -12,7 +12,6 @@ import { useToggleSavedQuestionMutation } from '@/redux/features/user/userApi';
 import { useGetViewQuestionQuery } from '@/redux/features/interaction/interactionApi';
 import { formatAndDivideNumber } from '@/lib/utils';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from '../ui/use-toast';
 

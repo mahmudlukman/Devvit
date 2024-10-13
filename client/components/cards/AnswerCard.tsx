@@ -1,9 +1,9 @@
 import Link from "next/link";
-
 import Metric from "../shared/Metric";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
 import EditDeleteAction from "../shared/EditDeleteAction";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 interface Props {
   _id: string;
@@ -32,6 +32,12 @@ const AnswerCard = ({
   const { user } = useSelector((state: any) => state.auth);
   const showActionButtons = user && user._id === author._id;
 
+  useEffect(() => {
+    console.log("Current user in AnswerCard:", user);
+    console.log("Author of answer:", author);
+    console.log("Should show action buttons:", user && user._id === author._id);
+  }, [user, author]);
+
   const getAvatarUrl = (avatar: { url?: string } | string): string => {
     if (typeof avatar === 'string') {
       return avatar || '../../public/assets/icons/avatar.svg';
@@ -53,8 +59,7 @@ const AnswerCard = ({
             {question.title}
           </h3>
         </div>
-
-          {user && showActionButtons && (
+        {showActionButtons && (
             <EditDeleteAction type="Answer" itemId={JSON.stringify(_id)} />
           )}
       </div>

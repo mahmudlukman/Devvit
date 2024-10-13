@@ -37,6 +37,7 @@ const QuestionCard = ({
   createdAt
 }: QuestionProps) => {
   const { user } = useSelector((state: any) => state.auth);
+  const showActionButtons = user && user._id === author._id;
 
   const getAvatarUrl = (avatar: { url?: string } | string): string => {
     if (typeof avatar === 'string') {
@@ -58,10 +59,9 @@ const QuestionCard = ({
             </h3>
           </Link>
         </div>
-        
-        {user && user._id === author._id && (
-          <EditDeleteAction type="Question" itemId={JSON.stringify(_id)} />
-        )}
+        {showActionButtons && (
+            <EditDeleteAction type="Question" itemId={JSON.stringify(_id)} />
+          )}
       </div>
       
       <div className="mt-3.5 flex flex-wrap gap-2">

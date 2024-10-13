@@ -117,7 +117,7 @@ const Profile = ({ user }: Props) => {
               <FormControl>
                 <div className="relative w-32 h-32">
                   <Image
-                    src={avatarPreview || '/default-avatar.png'}
+                    src={avatarPreview || '../../public/assets/icons/avatar.svg'}
                     alt="Avatar"
                     width={128}
                     height={128}
