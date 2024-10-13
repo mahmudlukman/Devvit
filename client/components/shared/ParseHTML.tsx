@@ -1,7 +1,4 @@
-"use client"
-
 import React, { useEffect } from 'react'
-
 import Prism from 'prismjs'
 import parse from 'html-react-parser'
 
@@ -37,9 +34,24 @@ const ParseHTML = ({ data }: Props) => {
     Prism.highlightAll();
   }, [])
 
+  const parsedContent = parse(data);
+
+  const wrapWithColorClass = (node: React.ReactNode): React.ReactNode => {
+    if (React.isValidElement(node)) {
+      const children = React.Children.map(node.props.children, wrapWithColorClass);
+      return React.cloneElement(node, { ...node.props, children });
+    }
+    if (typeof node === 'string') {
+      return <span className="text-dark400_light800">{node}</span>;
+    }
+    return node;
+  };
+
+  const contentWithColorClass = React.Children.map(parsedContent, wrapWithColorClass);
+
   return (
     <div>
-      {parse(data)}
+      {contentWithColorClass}
     </div>
   )
 }

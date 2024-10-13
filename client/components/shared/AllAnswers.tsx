@@ -79,8 +79,8 @@ const AllAnswers = ({
                 <div className="flex justify-end">
                   <Votes
                     type="Answer"
-                    itemId={answer._id} // No need to stringify these IDs
-                    userId={userId} // Directly use the IDs as strings
+                    itemId={answer._id}
+                    userId={userId}
                     upvotes={answer.upvotes.length}
                     hasupVoted={answer.upvotes.includes(userId)}
                     downvotes={answer.downvotes.length}

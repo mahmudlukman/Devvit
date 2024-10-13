@@ -238,13 +238,39 @@ export const deleteAnswer = catchAsyncError(
         return next(new ErrorHandler('Answer not found!', 400));
       }
 
+      // Calculate reputation change
+      const authorReputationChange = -(answer.upvotes.length * 10 - answer.downvotes.length * 10);
+      
+      // Adjust reputation for users who voted
+      const votedUsers = [...new Set([...answer.upvotes, ...answer.downvotes])];
+      for (const userId of votedUsers) {
+        let userReputationChange = 0;
+        if (answer.upvotes.includes(userId)) userReputationChange -= 1;
+        if (answer.downvotes.includes(userId)) userReputationChange += 2;
+        
+        await UserModel.findByIdAndUpdate(userId, {
+          $inc: { reputation: userReputationChange }
+        });
+      }
+
+      // Adjust author's reputation
+      await UserModel.findByIdAndUpdate(answer.author, {
+        $inc: { reputation: authorReputationChange }
+      });
+
+      // Delete the answer
       await answer.deleteOne({ _id: answerId });
+
+      // Remove the answer from the question
       await Question.updateMany(
         { _id: answer.question },
         { $pull: { answers: answerId } }
       );
+
+      // Delete related interactions
       await Interaction.deleteMany({ answer: answerId });
-      res.status(200).json({ success: true, answer });
+
+      res.status(200).json({ success: true, message: 'Answer deleted successfully' });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
