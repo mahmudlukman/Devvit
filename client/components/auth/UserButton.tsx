@@ -11,10 +11,11 @@ import { FaUser } from 'react-icons/fa';
 import { ExitIcon } from '@radix-ui/react-icons';
 import { LogoutButton } from './LogoutButton';
 import { useSelector } from 'react-redux';
-import { useLogOutQuery } from '@/redux/features/auth/authApi';
-import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { useLogOutQuery, useSocialAuthMutation } from '@/redux/features/auth/authApi';
+import { useEffect, useState } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface User {
   avatar?: { url: string };
@@ -30,10 +31,29 @@ interface RootState {
 
 export const UserButton = ({ avatar, image, name }: User) => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const {data} = useSession();
+  const [socialAuth,{isSuccess,error}] = useSocialAuthMutation()
   const [logout, setLogout] = useState(false);
   const {} = useLogOutQuery(undefined, {
     skip: !logout ? true : false,
   });
+
+  useEffect(()=>{
+    if(!user){
+        if(data){
+            socialAuth({email:data?.user?.email,name:data?.user?.name,avatar:data.user?.image})
+        }
+    }
+    if(data===null){
+        if(isSuccess){
+            toast.success("Login Successfully")
+        }
+
+    }
+    // if(data===null){
+    //     setLogout(true)
+    // }
+},[data, isSuccess, socialAuth, user])
 
   const logOutHandler = async () => {
     setLogout(true);
