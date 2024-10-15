@@ -25,7 +25,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
     searchQuery: searchParams.q,
     filter: searchParams.filter,
     page: searchParams.page ? +searchParams.page : 1,
-    pageSize: 10, // Adjust as needed
+    pageSize: 10,
   }, {
     skip: searchParams?.filter === 'recommended',
   });

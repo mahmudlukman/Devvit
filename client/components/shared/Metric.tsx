@@ -10,7 +10,7 @@ interface MetricProps {
   href?: string;
   textStyles?: string;
   isAuthor?: boolean;
-  imgStyles?: string; // Add this line
+  imgStyles?: string;
 }
 
 const Metric = ({
@@ -21,16 +21,16 @@ const Metric = ({
   href,
   textStyles,
   isAuthor,
-  imgStyles, // Add this line
+  imgStyles, 
 }: MetricProps) => {
   const metricContent = (
     <>
       <Image 
         src={imgUrl}
-        width={20} // Increased from 16
-        height={20} // Increased from 16
+        width={20}
+        height={20}
         alt={alt}
-        className={`object-contain ${href ? 'rounded-full' : ''} ${imgStyles}`} // Add imgStyles here
+        className={`object-contain ${href ? 'rounded-full' : ''} ${imgStyles}`}
       />
 
       <p className={`${textStyles} flex items-center gap-1`}>

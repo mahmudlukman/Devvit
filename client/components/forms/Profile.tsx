@@ -16,10 +16,10 @@ import { useForm } from 'react-hook-form';
 import { Textarea } from '../ui/textarea';
 import { useEffect, useState } from 'react';
 import { ProfileSchema } from '@/lib/validations';
-import { redirect, usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useUpdateUserProfileMutation } from '@/redux/features/user/userApi';
 import { Pen } from 'lucide-react';
-import Image from 'next/image';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface User {
   name: string;
@@ -100,6 +100,23 @@ const Profile = ({ user }: Props) => {
     }
   };
 
+  const getAvatarSrc = () => {
+    if (avatarPreview) {
+      return avatarPreview;
+    }
+    if (user.avatar?.url) {
+      return user.avatar.url;
+    }
+    return "";
+  };
+
+  const getUserInitials = () => {
+    if (user.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
   return (
     <Form {...form}>
       <form
@@ -116,13 +133,12 @@ const Profile = ({ user }: Props) => {
               </FormLabel>
               <FormControl>
                 <div className="relative w-32 h-32">
-                  <Image
-                    src={avatarPreview || '../../public/assets/icons/avatar.svg'}
-                    alt="Avatar"
-                    width={128}
-                    height={128}
-                    className="rounded-full object-cover"
-                  />
+                  <Avatar className="w-32 h-32">
+                    <AvatarImage src={getAvatarSrc()} />
+                    <AvatarFallback className="bg-gray-200 text-4xl">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
                   <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-primary-500 rounded-full p-2 cursor-pointer">
                     <Pen className="w-4 h-4 text-white" />
                   </label>

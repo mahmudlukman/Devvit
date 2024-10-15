@@ -1,10 +1,11 @@
 'use client';
 
 import { useGetTopInteractedTagsQuery } from '@/redux/features/tags/tagsApi';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
 import RenderTag from '../shared/RenderTag';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useGetUserInfoQuery } from '@/redux/features/user/userApi';
 
 interface Props {
   user: {
@@ -20,17 +21,26 @@ interface Props {
 }
 
 const UserCard = ({ user }: Props) => {
+  const { data: userInfo, isLoading: isUserLoading } = useGetUserInfoQuery({ userId: user._id });
   const { data, isLoading, isError } = useGetTopInteractedTagsQuery({ userId: user._id });
 
   const interactedTags = data?.topInteractedTags || [];
 
-  console.log(interactedTags)
-
-  const getAvatarUrl = (avatar: { url?: string } | string): string => {
-    if (typeof avatar === 'string') {
-      return avatar || '../../public/assets/icons/avatar.svg';
+  const getAvatarSrc = () => {
+    if (userInfo?.user.avatar?.url) {
+      return userInfo.user.avatar.url;
     }
-    return avatar?.url || '/assets/icons/avatar.svg';
+    if (userInfo?.user.image) {
+      return userInfo.user.image;
+    }
+    return "";
+  };
+
+  const getUserInitials = () => {
+    if (userInfo?.user.name) {
+      return userInfo.user.name.charAt(0).toUpperCase();
+    }
+    return "U";
   };
 
   return (
@@ -39,13 +49,12 @@ const UserCard = ({ user }: Props) => {
       className="shadow-light100_darknone w-full max-xs:min-w-full xs:w-[260px]"
     >
       <article className="background-light900_dark200 light-border flex w-full flex-col items-center justify-center rounded-2xl border p-8">
-        <Image
-          src={getAvatarUrl(user.avatar)} // Updated to use user.avatar
-          alt="user profile picture"
-          width={100}
-          height={100}
-          className="rounded-full bg-slate-300 border-slate-400"
-        />
+        <Avatar className="h-[100px] w-[100px]">
+          <AvatarImage src={getAvatarSrc()} alt="user profile picture" />
+          <AvatarFallback className="bg-slate-300 text-slate-600 text-2xl">
+            {getUserInitials()}
+          </AvatarFallback>
+        </Avatar>
 
         <div className="mt-4 text-center">
           <h3 className="h3-bold text-dark200_light900 line-clamp-1">

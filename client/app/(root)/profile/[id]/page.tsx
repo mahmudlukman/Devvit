@@ -3,10 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { useGetUserInfoQuery } from '@/redux/features/user/userApi';
 import { URLProps } from '@/types';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import React from 'react';
 import { getJoinedDate } from '@/lib/utils';
 import ProfileLink from '@/components/shared/ProfileLink';
@@ -26,25 +25,37 @@ const Page = ({ params, searchParams }: URLProps) => {
     return <div>Loading...</div>;
   }
 
-  if (!user) {
+  if (!userInfo) {
     return <div>User not found</div>;
   }
+
+  const getAvatarSrc = () => {
+    if (userInfo?.user.avatar?.url) {
+      return userInfo.user.avatar.url;
+    }
+    if (userInfo?.user.image) {
+      return userInfo.user.image;
+    }
+    return "";
+  };
+
+  const getUserInitials = () => {
+    if (userInfo?.user.name) {
+      return userInfo.user.name.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
 
   return (
     <>
       <div className="flex flex-col-reverse items-start justify-between sm:flex-row">
         <div className="flex flex-col items-start gap-4 lg:flex-row">
-          {userInfo?.user.avatar ? (
-            <Image
-              src={userInfo?.user.avatar.url}
-              width={140}
-              height={140}
-              alt="profile picture"
-              className="rounded-full object-cover max-sm:mt-0.5"
-            />
-          ) : (
-            <FaUser className="text-white" />
-          )}
+          <Avatar className="h-36 w-36">
+            <AvatarImage src={getAvatarSrc()} />
+            <AvatarFallback className="bg-gray-200 text-4xl">
+              {getUserInitials()}
+            </AvatarFallback>
+          </Avatar>
 
           <div className="mt-3">
             <h2 className="h2-bold text-dark100_light900">
