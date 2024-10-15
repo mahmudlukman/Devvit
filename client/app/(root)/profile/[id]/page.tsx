@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { useGetUserInfoQuery } from '@/redux/features/user/userApi';
-import { URLProps } from '@/types';
-import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from "@/components/ui/button";
+import { useGetUserInfoQuery } from "@/redux/features/user/userApi";
+import { URLProps } from "@/types";
+import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import React from 'react';
-import { getJoinedDate } from '@/lib/utils';
-import ProfileLink from '@/components/shared/ProfileLink';
-import Stats from '@/components/shared/Stats';
-import QuestionTab from '@/components/shared/QuestionTab';
-import AnswersTab from '@/components/shared/AnswersTab';
-import { useSelector } from 'react-redux';
-import { FaUser } from 'react-icons/fa';
+import React from "react";
+import { getJoinedDate } from "@/lib/utils";
+import ProfileLink from "@/components/shared/ProfileLink";
+import Stats from "@/components/shared/Stats";
+import QuestionTab from "@/components/shared/QuestionTab";
+import AnswersTab from "@/components/shared/AnswersTab";
+import { useSelector } from "react-redux";
+import { FaUser } from "react-icons/fa";
+import Loading from "./loading";
 
 const Page = ({ params, searchParams }: URLProps) => {
   const { user } = useSelector((state: any) => state.auth);
@@ -22,7 +23,7 @@ const Page = ({ params, searchParams }: URLProps) => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (!userInfo) {
@@ -128,12 +129,18 @@ const Page = ({ params, searchParams }: URLProps) => {
             className="mt-5 flex w-full flex-col gap-6"
           >
             <>
-              <QuestionTab searchParams={searchParams} userId={userInfo?.user._id} />
+              <QuestionTab
+                searchParams={searchParams}
+                userId={userInfo?.user._id}
+              />
             </>
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
             <>
-              <AnswersTab searchParams={searchParams} userId={userInfo?.user._id} />
+              <AnswersTab
+                searchParams={searchParams}
+                userId={userInfo?.user._id}
+              />
             </>
           </TabsContent>
         </Tabs>

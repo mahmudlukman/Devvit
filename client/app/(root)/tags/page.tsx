@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import UserCard from '@/components/cards/UserCard';
-import Filter from '@/components/shared/Filter';
-import NoResult from '@/components/shared/NoResult';
-import Pagination from '@/components/shared/Pagination';
-import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
-import { UserFilters } from '@/constants/filters';
-import { useGetAllTagsQuery } from '@/redux/features/tags/tagsApi';
-import { SearchParamsProps } from '@/types';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import UserCard from "@/components/cards/UserCard";
+import Filter from "@/components/shared/Filter";
+import NoResult from "@/components/shared/NoResult";
+import Pagination from "@/components/shared/Pagination";
+import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
+import { UserFilters } from "@/constants/filters";
+import { useGetAllTagsQuery } from "@/redux/features/tags/tagsApi";
+import { SearchParamsProps } from "@/types";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Loading from "./loading";
 
 const Page = ({ searchParams }: SearchParamsProps) => {
   const [tags, setTags] = useState([]);
@@ -25,7 +26,7 @@ const Page = ({ searchParams }: SearchParamsProps) => {
     }
   }, [data]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div>Error loading tags</div>;
 
   return (
@@ -68,7 +69,7 @@ const Page = ({ searchParams }: SearchParamsProps) => {
                       ? tag.questions.length
                       : 0}
                     +
-                  </span>{' '}
+                  </span>{" "}
                   Questions
                 </p>
               </article>
@@ -84,7 +85,7 @@ const Page = ({ searchParams }: SearchParamsProps) => {
         )}
       </section>
       <div className="mt-10">
-        <Pagination 
+        <Pagination
           pageNumber={searchParams?.page ? +searchParams.page : 1}
           isNext={data.isNext}
         />

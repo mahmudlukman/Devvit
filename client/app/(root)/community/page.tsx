@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import UserCard from '@/components/cards/UserCard';
-import Filter from '@/components/shared/Filter';
-import Pagination from '@/components/shared/Pagination';
-import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
-import { UserFilters } from '@/constants/filters';
-import { useGetAllUsersQuery } from '@/redux/features/user/userApi';
-import { SearchParamsProps } from '@/types';
-import Link from 'next/link';
+import UserCard from "@/components/cards/UserCard";
+import Filter from "@/components/shared/Filter";
+import Pagination from "@/components/shared/Pagination";
+import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
+import { UserFilters } from "@/constants/filters";
+import { useGetAllUsersQuery } from "@/redux/features/user/userApi";
+import { SearchParamsProps } from "@/types";
+import Link from "next/link";
+import Loading from "./loading";
 
 const Page = ({ searchParams }: SearchParamsProps) => {
   const { data, isLoading, isError } = useGetAllUsersQuery({
@@ -39,9 +40,7 @@ const Page = ({ searchParams }: SearchParamsProps) => {
 
       <section className="mt-12 flex flex-wrap gap-4">
         {isLoading ? (
-          <div className="paragraph-regular text-dark200_light800 mx-auto max-w-4xl text-center">
-            <p>Loading users...</p>
-          </div>
+          <Loading />
         ) : isError ? (
           <div className="paragraph-regular text-dark200_light800 mx-auto max-w-4xl text-center">
             <p>Error loading users. Please try again later.</p>

@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import QuestionCard from '@/components/cards/QuestionCard';
-import NoResult from '@/components/shared/NoResult';
-import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
+import { useEffect, useState } from "react";
+import QuestionCard from "@/components/cards/QuestionCard";
+import NoResult from "@/components/shared/NoResult";
+import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 // import { IQuestion } from '@/database/question.model';
-import { useGetQuestionByTagsQuery } from '@/redux/features/tags/tagsApi';
-import { URLProps } from '@/types';
+import { useGetQuestionByTagsQuery } from "@/redux/features/tags/tagsApi";
+import { URLProps } from "@/types";
+import Loading from "../loading";
 
 const Page = ({ params, searchParams }: URLProps) => {
-  const [tagTitle, setTagTitle] = useState('');
+  const [tagTitle, setTagTitle] = useState("");
   const [questions, setQuestions] = useState([]);
 
   const { data, isLoading, error } = useGetQuestionByTagsQuery({
@@ -20,12 +21,12 @@ const Page = ({ params, searchParams }: URLProps) => {
 
   useEffect(() => {
     if (data) {
-      setTagTitle(data.tagTitle || '');
+      setTagTitle(data.tagTitle || "");
       setQuestions(data.questions || []);
     }
   }, [data]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error loading questions</div>;
 
   return (

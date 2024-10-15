@@ -1,41 +1,53 @@
-'use client';
+"use client";
 
-import Heading from '@/lib/Heading';
-import QuestionCard from '@/components/cards/QuestionCard';
-import HomeFilters from '@/components/home/HomeFilters';
-import Filter from '@/components/shared/Filter';
-import NoResult from '@/components/shared/NoResult';
-import Pagination from '@/components/shared/Pagination';
-import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
-import { Button } from '@/components/ui/button';
-import { HomePageFilters } from '@/constants/filters';
-import { useGetQuestionsQuery, useGetRecommendedQuestionsQuery } from '@/redux/features/question/questionApi';
-import { SearchParamsProps } from '@/types';
-import Link from 'next/link';
-import { useSelector } from 'react-redux';
+import Heading from "@/lib/Heading";
+import QuestionCard from "@/components/cards/QuestionCard";
+import HomeFilters from "@/components/home/HomeFilters";
+import Filter from "@/components/shared/Filter";
+import NoResult from "@/components/shared/NoResult";
+import Pagination from "@/components/shared/Pagination";
+import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
+import { Button } from "@/components/ui/button";
+import { HomePageFilters } from "@/constants/filters";
+import {
+  useGetQuestionsQuery,
+  useGetRecommendedQuestionsQuery,
+} from "@/redux/features/question/questionApi";
+import { SearchParamsProps } from "@/types";
+import Link from "next/link";
+import { useSelector } from "react-redux";
+import Loading from "./loading";
 
 export default function Home({ searchParams }: SearchParamsProps) {
   const { user } = useSelector((state: any) => state.auth);
 
-  const { data: recommendedData, isLoading: recommendedLoading } = useGetRecommendedQuestionsQuery(undefined, {
-    skip: !user || searchParams?.filter !== 'recommended',
-  });
+  const { data: recommendedData, isLoading: recommendedLoading } =
+    useGetRecommendedQuestionsQuery(undefined, {
+      skip: !user || searchParams?.filter !== "recommended",
+    });
 
-  const { data: questionsData, isLoading: questionsLoading, isError } = useGetQuestionsQuery({
-    searchQuery: searchParams.q,
-    filter: searchParams.filter,
-    page: searchParams.page ? +searchParams.page : 1,
-    pageSize: 10,
-  }, {
-    skip: searchParams?.filter === 'recommended',
-  });
+  const {
+    data: questionsData,
+    isLoading: questionsLoading,
+    isError,
+  } = useGetQuestionsQuery(
+    {
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+      pageSize: 10,
+    },
+    {
+      skip: searchParams?.filter === "recommended",
+    }
+  );
 
   const isLoading = recommendedLoading || questionsLoading;
 
   let questions = [];
   let isNext = false;
 
-  if (searchParams?.filter === 'recommended' && user) {
+  if (searchParams?.filter === "recommended" && user) {
     questions = recommendedData?.questions || [];
     isNext = recommendedData?.isNext || false;
   } else {
@@ -44,7 +56,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (isError) {
@@ -113,7 +125,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
 
       {questions.length > 0 && (
         <div className="mt-10">
-          <Pagination 
+          <Pagination
             pageNumber={searchParams?.page ? +searchParams.page : 1}
             isNext={isNext}
           />

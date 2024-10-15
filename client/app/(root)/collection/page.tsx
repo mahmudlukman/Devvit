@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import QuestionCard from '@/components/cards/QuestionCard';
-import Filter from '@/components/shared/Filter';
-import NoResult from '@/components/shared/NoResult';
-import LocalSearchbar from '@/components/shared/search/LocalSearchbar';
-import { QuestionFilters } from '@/constants/filters';
-import { useGetSavedQuestionsQuery } from '@/redux/features/user/userApi';
-import { SearchParamsProps } from '@/types';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import QuestionCard from "@/components/cards/QuestionCard";
+import Filter from "@/components/shared/Filter";
+import NoResult from "@/components/shared/NoResult";
+import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
+import { QuestionFilters } from "@/constants/filters";
+import { useGetSavedQuestionsQuery } from "@/redux/features/user/userApi";
+import { SearchParamsProps } from "@/types";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import Loading from "./loading";
 
 export default function Home({ searchParams }: SearchParamsProps) {
   const router = useRouter();
@@ -18,18 +19,21 @@ export default function Home({ searchParams }: SearchParamsProps) {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [user, router]);
 
-  const { data, isLoading, isError } = useGetSavedQuestionsQuery({
-    userId: user._id,
-    searchQuery: searchParams.q,
-    filter: searchParams.filter,
-    page: searchParams.page ? +searchParams.page : 1,
-  }, {
-    skip: !user?._id
-  });
+  const { data, isLoading, isError } = useGetSavedQuestionsQuery(
+    {
+      userId: user._id,
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    },
+    {
+      skip: !user?._id,
+    }
+  );
 
   useEffect(() => {
     if (data && data.savedQuestions) {
@@ -37,7 +41,7 @@ export default function Home({ searchParams }: SearchParamsProps) {
     }
   }, [data]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div>Error loading saved questions</div>;
 
   return (
