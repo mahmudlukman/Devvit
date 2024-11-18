@@ -66,28 +66,6 @@ export const getTopInteractedTags = catchAsyncError(
     }
   }
 );
-// export const getTopInteractedTags = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { userId } = req.query;
-
-//       const user = await UserModel.findById(userId);
-
-//       if (!user) {
-//         return next(new ErrorHandler('User not found', 400));
-//       }
-//       // Find interactions for the user and group by tags...
-//       // Interaction...
-//       const topInteractedTags = [
-//         { _id: '1', name: 'tag' },
-//         { _id: '2', name: 'tag2' },
-//       ];
-//       res.status(200).json({ success: true, topInteractedTags });
-//     } catch (error: any) {
-//       return next(new ErrorHandler(error.message, 400));
-//     }
-//   }
-// );
 
 interface IGetAllTags {
   page?: number;
