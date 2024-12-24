@@ -24,18 +24,23 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     credentials: true,
   })
 );
 
 // routes
-app.use("/api/v1", userRouter);
-app.use("/api/v1", authRouter);
-app.use("/api/v1", questionRouter);
-app.use("/api/v1", tagRouter);
-app.use("/api/v1", answerRouter);
-app.use("/api/v1", interactionRouter);
-app.use("/api/v1", globalSearchRouter);
+app.use(
+  "/api/v1",
+  userRouter,
+  authRouter,
+  questionRouter,
+  tagRouter,
+  answerRouter,
+  interactionRouter,
+  globalSearchRouter
+);
 
 // testing API
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
