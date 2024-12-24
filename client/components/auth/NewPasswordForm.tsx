@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import * as z from 'zod';
-import { useEffect, useState } from 'react';
-import { CardWrapper } from './CardWrapper';
-import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
+import * as z from "zod";
+import { useEffect, useState, Suspense } from "react";
+import { CardWrapper } from "./CardWrapper";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -14,77 +14,87 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Button } from '../ui/button';
-import { FormError } from '../FormError';
-import { FormSuccess } from '../FormSuccess';
-import { useSearchParams } from 'next/navigation';
-import { useResetPasswordMutation } from '@/redux/features/auth/authApi';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
+} from "@/components/ui/form";
+import { Button } from "../ui/button";
+import { FormError } from "../FormError";
+import { FormSuccess } from "../FormSuccess";
+import { useSearchParams } from "next/navigation";
+import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
-// Update the schema to include confirmPassword
 const NewPasswordSchema = z
   .object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(1, 'Confirm Password is required'),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(1, "Confirm Password is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ['confirmPassword'],
+    path: ["confirmPassword"],
   });
 
-export const NewPasswordForm = () => {
+// Component that handles search params
+const NewPasswordFormWithParams = () => {
+  const searchParams = useSearchParams();
+  const token = searchParams?.get("token") || null;
+  const userId = searchParams?.get("id") || null;
+
+  return <NewPasswordFormContent token={token} userId={userId} />;
+};
+
+// Main form content component
+const NewPasswordFormContent = ({
+  token,
+  userId,
+}: {
+  token: string | null;
+  userId: string | null;
+}) => {
   const router = useRouter();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
-  const searchParams = useSearchParams();
-  const token = searchParams?.get('token');
-  const userId = searchParams?.get('id');
-
   useEffect(() => {
     if (!userId) {
-      setError('Invalid reset password link!');
-      console.log(userId, token)
-      router.push('/error')
+      setError("Invalid reset password link!");
+      console.log(userId, token);
+      router.push("/error");
     }
-  }, [userId]);
-
+  }, [userId, token, router]);
 
   const form = useForm<z.infer<typeof NewPasswordSchema>>({
     resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      password: '',
-      confirmPassword: '',
+      password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof NewPasswordSchema>) => {
-    setError('');
-    setSuccess('');
-  
+    setError("");
+    setSuccess("");
+
     if (!token) {
-      setError('Missing reset token');
+      setError("Missing reset token");
       return;
     }
     if (!userId) {
-      setError('Missing User Id');
+      setError("Missing User Id");
       return;
     }
-  
+
     try {
       const result = await resetPassword({
         userId,
         token,
-        newPassword: values.password
+        newPassword: values.password,
       }).unwrap();
-      setSuccess(result.message || 'Password reset successful');
+      setSuccess(result.message || "Password reset successful");
       form.reset();
     } catch (error: any) {
-      setError(error.data?.message || 'Something went wrong!');
+      setError(error.data?.message || "Something went wrong!");
     }
   };
 
@@ -109,7 +119,7 @@ export const NewPasswordForm = () => {
                         {...field}
                         disabled={isLoading}
                         placeholder="******"
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                       />
                       <Button
                         type="button"
@@ -142,7 +152,7 @@ export const NewPasswordForm = () => {
                         {...field}
                         disabled={isLoading}
                         placeholder="******"
-                        type={showConfirmPassword ? 'text' : 'password'}
+                        type={showConfirmPassword ? "text" : "password"}
                       />
                       <Button
                         type="button"
@@ -169,10 +179,19 @@ export const NewPasswordForm = () => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? 'Resetting...' : 'Reset password'}
+            {isLoading ? "Resetting..." : "Reset password"}
           </Button>
         </form>
       </Form>
     </CardWrapper>
+  );
+};
+
+// Export wrapped component with Suspense
+export const NewPasswordForm = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewPasswordFormWithParams />
+    </Suspense>
   );
 };
