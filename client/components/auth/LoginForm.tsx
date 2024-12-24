@@ -1,8 +1,8 @@
 "use client";
 
 import * as z from "zod";
-import { useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CardWrapper } from "./CardWrapper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,6 @@ import { Button } from "../ui/button";
 import { FormError } from "../FormError";
 import { FormSuccess } from "../FormSuccess";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 // Separate component to handle search params
