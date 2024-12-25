@@ -1,6 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
 import Heading from "@/lib/Heading";
 import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilters from "@/components/home/HomeFilters";
@@ -19,8 +18,7 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import Loading from "./loading";
 
-// Main content component that handles data fetching
-const HomeContent = ({ searchParams }: SearchParamsProps) => {
+export default function Home({ searchParams }: SearchParamsProps) {
   const { user } = useSelector((state: any) => state.auth);
 
   const { data: recommendedData, isLoading: recommendedLoading } =
@@ -67,6 +65,11 @@ const HomeContent = ({ searchParams }: SearchParamsProps) => {
 
   return (
     <>
+      <Heading
+        title="Dev Overflow"
+        description="A community-driven platform for asking and answering programming questions. Get help, share knowledge, and collaborate with developers from around the world. Explore topics in web development, mobile app development, algorithms, data structures, and more."
+        keywords="Programming, Coding, Education"
+      />
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
 
@@ -128,23 +131,6 @@ const HomeContent = ({ searchParams }: SearchParamsProps) => {
           />
         </div>
       )}
-    </>
-  );
-};
-
-// Main page component with SEO and Suspense
-export default function Home({ searchParams }: SearchParamsProps) {
-  return (
-    <>
-      <Heading
-        title="Dev Overflow"
-        description="A community-driven platform for asking and answering programming questions. Get help, share knowledge, and collaborate with developers from around the world. Explore topics in web development, mobile app development, algorithms, data structures, and more."
-        keywords="Programming, Coding, Education"
-      />
-
-      <Suspense fallback={<Loading />}>
-        <HomeContent searchParams={searchParams} />
-      </Suspense>
     </>
   );
 }
