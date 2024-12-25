@@ -51,7 +51,7 @@ export const NewPasswordForm = () => {
       console.log(userId, token)
       router.push('/error')
     }
-  }, [userId]);
+  }, [userId, router, token]);
 
 
   const form = useForm<z.infer<typeof NewPasswordSchema>>({
