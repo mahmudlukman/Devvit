@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import * as z from "zod";
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CardWrapper } from "./CardWrapper";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import * as z from 'zod';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CardWrapper } from './CardWrapper';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -14,62 +14,51 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { LoginSchema } from "@/schemas";
-import { Button } from "../ui/button";
-import { FormError } from "../FormError";
-import { FormSuccess } from "../FormSuccess";
-import { useLoginMutation } from "@/redux/features/auth/authApi";
-import Link from "next/link";
+} from '@/components/ui/form';
+import { LoginSchema } from '@/schemas';
+import { Button } from '../ui/button';
+import { FormError } from '../FormError';
+import { FormSuccess } from '../FormSuccess';
+import { useLoginMutation } from '@/redux/features/auth/authApi';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
-// Separate component to handle search params
-const LoginFormWithParams = () => {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get("callbackUrl") || null;
-  const urlError =
-    searchParams?.get("error") === "OAuthAccountNotLinked"
-      ? "Email already in use with different provider!"
-      : "";
-
-  return <LoginFormContent callbackUrl={callbackUrl} urlError={urlError} />;
-};
-
-// Main form content component
-const LoginFormContent = ({
-  callbackUrl,
-  urlError,
-}: {
-  callbackUrl: string | null;
-  urlError: string;
-}) => {
+export const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl');
+  const urlError =
+    searchParams?.get('error') === 'OAuthAccountNotLinked'
+      ? 'Email already in use with different provider!'
+      : '';
+
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
+  const [error, setError] = useState<string | undefined>('');
+  const [success, setSuccess] = useState<string | undefined>('');
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     try {
       const result = await login(values).unwrap();
       if (result.twoFactor) {
         setShowTwoFactor(true);
       } else if (result.success) {
-        setSuccess("Logged in successfully!");
-        router.push(callbackUrl || "/");
+        setSuccess('Logged in successfully!');
+        router.push(callbackUrl || '/');
       }
     } catch (error: any) {
-      setError(error.data?.message || "An error occurred during login");
+      setError(error.data?.message || 'An error occurred during login');
       form.reset();
     }
   };
@@ -155,19 +144,10 @@ const LoginFormContent = ({
           <FormError message={error || urlError} />
           <FormSuccess message={success} />
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Loading..." : showTwoFactor ? "Confirm" : "Login"}
+            {isLoading ? "Loading..." : (showTwoFactor ? 'Confirm' : 'Login')}
           </Button>
         </form>
       </Form>
     </CardWrapper>
-  );
-};
-
-// Export wrapped component with Suspense
-export const LoginForm = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LoginFormWithParams />
-    </Suspense>
   );
 };
