@@ -1,26 +1,19 @@
-"use client"
-
-import Profile from '@/components/forms/Profile';
+import { Suspense } from 'react';
+import EditProfileContent from '@/components/shared/edit-profile/EditProfileContent';
 import { ParamsProps } from '@/types';
-import { redirect } from 'next/navigation';
-import { useSelector } from 'react-redux';
 
-const Page = ({ params }: ParamsProps) => {
-  const { user } = useSelector((state: any) => state.auth);
-
-  if(!user) redirect('/login');
-
+export default function EditProfilePage({ params }: ParamsProps) {
   return (
-    <>
-      <h1 className="h1-bold text-dark100_light900">Edit Profile</h1>
-      
-      <div className="mt-9">
-        <Profile 
-          user={user}
-        />
-      </div>
-    </>
-  )
+    <Suspense 
+      fallback={
+        <div className="flex-center w-full">
+          <div className="flex-center flex-col gap-4">
+            <div className="h1-bold text-dark100_light900">Loading profile...</div>
+          </div>
+        </div>
+      }
+    >
+      <EditProfileContent />
+    </Suspense>
+  );
 }
-
-export default Page

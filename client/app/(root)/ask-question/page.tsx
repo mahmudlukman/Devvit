@@ -1,24 +1,10 @@
-"use client"
+import { Suspense } from 'react';
+import AskQuestionContent from '@/components/shared/ask-question/AskQuestionContent';
 
-import Question from '@/components/forms/Question'
-import { redirect } from 'next/navigation';
-import React from 'react'
-import { useSelector } from 'react-redux';
-
-const Page = () => {
-  const { user } = useSelector((state: any) => state.auth);
-
-  if (!user) redirect('/login');
-
+export default function AskQuestionPage() {
   return (
-    <div>
-      <h1 className="h1-bold text-dark100_light900">Ask a question</h1>
-
-      <div className="mt-9">
-        <Question userId={JSON.stringify(user._id)}/>
-      </div>
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <AskQuestionContent />
+    </Suspense>
+  );
 }
-
-export default Page

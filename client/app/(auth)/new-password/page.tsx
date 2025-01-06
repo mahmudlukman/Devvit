@@ -1,7 +1,19 @@
-import { NewPasswordForm } from '@/components/auth/NewPasswordForm';
+import { Suspense } from "react";
+import { BeatLoader } from "react-spinners";
+import { NewPasswordForm } from "@/components/auth/NewPasswordForm";
 
 const NewPasswordPage = () => {
-  return <NewPasswordForm />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center">
+          <BeatLoader />
+        </div>
+      }
+    >
+      <NewPasswordForm />
+    </Suspense>
+  );
 };
 
 export default NewPasswordPage;
