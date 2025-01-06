@@ -25,19 +25,6 @@ export const getLoggedInUser = catchAsyncError(
   }
 );
 
-// get logged in user info
-// export const getUserById = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { userId } = req.params;
-//       const user = await UserModel.findById(userId).select('-password');
-//       res.status(200).json({ success: true, user });
-//     } catch (error: any) {
-//       return next(new ErrorHandler(error.message, 400));
-//     }
-//   }
-// );
-
 // get user info
 export const getUserInfo = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {

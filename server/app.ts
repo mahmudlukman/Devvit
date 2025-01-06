@@ -23,7 +23,7 @@ app.use(cookieParser());
 // cors => Cross Origin Resource Sharing
 app.use(
   cors({
-    origin: ["https://dev-overflow.onrender.com"],
+    origin: ["https://dev-overflow-sepia.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     credentials: true,
