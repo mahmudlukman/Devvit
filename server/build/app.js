@@ -25,7 +25,7 @@ exports.app.disable("x-powered-by");
 exports.app.use((0, cookie_parser_1.default)());
 // cors => Cross Origin Resource Sharing
 exports.app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000"],
+    origin: ["https://dev-overflow-sepia.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     credentials: true,
