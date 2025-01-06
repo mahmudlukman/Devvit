@@ -23,7 +23,7 @@ app.use(cookieParser());
 // cors => Cross Origin Resource Sharing
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["https://dev-overflow.onrender.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     credentials: true,
