@@ -27,7 +27,7 @@ exports.registerUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, n
             password,
         };
         const activationToken = (0, exports.createActivationToken)(user);
-        const activationUrl = `http://localhost:3000/new-verification?token=${activationToken}`;
+        const activationUrl = `https://dev-overflow-sepia.vercel.app/new-verification?token=${activationToken}`;
         const data = { user: { name: user.name }, activationUrl };
         const html = await ejs_1.default.renderFile(path_1.default.join(__dirname, "../mails/activation-mail.ejs"), data);
         try {
@@ -160,7 +160,7 @@ exports.forgotPassword = (0, catchAsyncError_1.catchAsyncError)(async (req, res,
             return next(new errorHandler_1.default("User not found, invalid request!", 400));
         }
         const resetToken = (0, exports.createActivationToken)(user);
-        const resetUrl = `http://localhost:3000/new-password?token=${resetToken}&id=${user._id}`;
+        const resetUrl = `https://dev-overflow-sepia.vercel.app/new-password?token=${resetToken}&id=${user._id}`;
         const data = { user: { name: user.name }, resetUrl };
         const html = await ejs_1.default.renderFile(path_1.default.join(__dirname, "../mails/forgot-password-mail.ejs"), data);
         try {
@@ -240,13 +240,6 @@ exports.updateAccessToken = (0, catchAsyncError_1.catchAsyncError)(async (req, r
         return next(new errorHandler_1.default(error.message, 400));
     }
 });
-// export const refreshTokenController = catchAsyncError (async(req: Request, res: Response)) => {
-//   res.status(200).json({
-//     status: "success",
-//     accessToken: req.cookies.accessToken,
-//     user: req.user
-//   });
-// };
 exports.refreshToken = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     try {
         res.status(200).json({

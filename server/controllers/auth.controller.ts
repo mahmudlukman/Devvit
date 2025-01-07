@@ -40,7 +40,7 @@ export const registerUser = catchAsyncError(
       };
       const activationToken = createActivationToken(user);
 
-      const activationUrl = `http://localhost:3000/new-verification?token=${activationToken}`;
+      const activationUrl = `https://dev-overflow-sepia.vercel.app/new-verification?token=${activationToken}`;
 
       const data = { user: { name: user.name }, activationUrl };
       const html = await ejs.renderFile(
@@ -220,7 +220,7 @@ export const forgotPassword = catchAsyncError(
 
       const resetToken = createActivationToken(user);
 
-      const resetUrl = `http://localhost:3000/new-password?token=${resetToken}&id=${user._id}`;
+      const resetUrl = `https://dev-overflow-sepia.vercel.app/new-password?token=${resetToken}&id=${user._id}`;
 
       const data = { user: { name: user.name }, resetUrl };
       const html = await ejs.renderFile(
@@ -353,13 +353,6 @@ export const updateAccessToken = catchAsyncError(
   }
 );
 
-// export const refreshTokenController = catchAsyncError (async(req: Request, res: Response)) => {
-//   res.status(200).json({
-//     status: "success",
-//     accessToken: req.cookies.accessToken,
-//     user: req.user
-//   });
-// };
 
 export const refreshToken = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
